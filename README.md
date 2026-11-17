@@ -2,19 +2,37 @@
 
 React + TypeScript starter with authentication, roles and CRUD administration.
 
+## What is this project?
+
+CRUD Monster React is a boilerplate: application source code that you copy and customize to build your own project. It includes authentication screens, protected routes, user and role administration, and reusable CRUD components. You own and maintain your copy; changes to this repository are not automatically applied to your application.
+
+Vite is the development server and build tool inside the starter. It serves the app locally, updates the browser as you edit React components, and builds the production files for hosting. Vite alone creates a minimal React project; this starter adds the application features and API integration.
+
+You obtain the starter from GitHub, then use Vite to develop and build your application. A dedicated `npm create crud-monster` generator is not currently provided.
+
 ## Getting started
+
+If GitHub's **Use this template** button is available, use it to create your own repository without this project's commit history, then clone that repository. Otherwise, clone this repository into a directory named for your application:
 
 Use Node.js 22.12+ or 24+:
 
 ```sh
-git clone git@github.com:crud-monster/react.git
-cd react
+git clone git@github.com:crud-monster/react.git my-app
+cd my-app
 npm ci
 cp .env.example .env
 npm run dev
 ```
 
 Set `VITE_HOST` in `.env` to a compatible GraphQL endpoint. Environment variables are included in the browser bundle; do not put secrets in them. Restart the development server after editing `.env`.
+
+When cloning this repository directly, Git preserves its commit history and `origin` points to CRUD Monster. Before pushing your application, create your own empty GitHub repository and change the remote:
+
+```sh
+git remote set-url origin git@github.com:YOUR-ACCOUNT/YOUR-REPOSITORY.git
+```
+
+Customize the package name and repository metadata in `package.json`, replace the sample screens, and connect your backend. `npm run build` creates the static frontend in `dist/`; Vite does not provide the backend or host the production application.
 
 ## Commands
 
