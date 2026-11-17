@@ -60,7 +60,7 @@ const userFromStorage = () => {
       .getItem('user.roles')
       ?.split(',')
       .map((role) => ({ name: role })),
-    verified: Boolean(localStorage.getItem('user.verified')),
+    verified: localStorage.getItem('user.verified') === 'true',
   } as UserWithToken
 }
 
@@ -73,6 +73,9 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    refreshAccessToken(state, action: PayloadAction<string>) {
+      if (state.user) state.user.token = action.payload
+    },
     changeState: (state, action: PayloadAction<UserState['state']>) => {
       state.state = action.payload
     },
@@ -95,6 +98,6 @@ export const userSlice = createSlice({
 
 export const selectUser = (state: RootState) => state.user.user
 // Action creators are generated for each case reducer function
-export const { login, logout, changeState } = userSlice.actions
+export const { login, logout, changeState, refreshAccessToken } = userSlice.actions
 
 export default userSlice.reducer

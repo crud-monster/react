@@ -1,124 +1,45 @@
-import { ApolloClient, InMemoryCache, createHttpLink, ApolloLink, fromPromise } from '@apollo/client'
-import { setContext } from '@apollo/client/link/context'
-import { onError } from '@apollo/client/link/error'
-import { refreshToken } from './refreshToken'
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client'
 import { RetryLink } from '@apollo/client/link/retry'
+import { getMainDefinition } from '@apollo/client/utilities'
+import { ServerError } from '@apollo/client/errors'
+import { createAuthenticationLink } from './authenticationLink'
+import { refreshToken } from './refreshToken'
+import { store } from './store'
+import { logout, refreshAccessToken } from './reducers/userSlice'
 
 const retryLink = new RetryLink({
   attempts: (count, operation, error) => {
-    return true
+    if (ServerError.is(error) && error.statusCode < 500) return false
+    const definition = getMainDefinition(operation.query)
+    return count < 3 && definition.kind === 'OperationDefinition' && definition.operation === 'query'
   },
-  delay: (count, operation, error) => {
-    return count * 1000 * Math.random()
-  },
+  delay: { initial: 300, max: 2000, jitter: true },
 })
 
-let isRefreshing = false
-let pendingRequests: any = []
-
-const resolvePendingRequests = () => {
-  //@ts-ignore
-  pendingRequests.map((callback) => callback())
-  pendingRequests = []
-}
-
-// https://able.bio/AnasT/apollo-graphql-async-access-token-refresh--470t1c8
-const refreshTokenAction = (forward: any, operation: any) => {
-  // error code is set to UNAUTHENTICATED
-  // when AuthenticationError thrown in resolver
-  let forward$
-
-  if (!isRefreshing) {
-    isRefreshing = true
-    forward$ = fromPromise(
-      refreshToken()
-        // @ts-ignore
-        .then(({ data }) => {
-          const {
-            data: { refreshToken_v1 },
-          } = data
-          localStorage.setItem('user.token', refreshToken_v1.token)
-          localStorage.setItem('user.refreshToken', refreshToken_v1.refreshToken)
-
-          // Store the new tokens for your auth link
-          resolvePendingRequests()
-          const oldHeaders = operation.getContext().headers
-          // modify the operation context with a new token
-          operation.setContext({
-            headers: {
-              ...oldHeaders,
-              authorization: `Bearer ${refreshToken_v1.token}`,
-            },
-          })
-          return forward(operation)
-        })
-        .catch((error) => {
-          pendingRequests = []
-          // Handle token refresh errors e.g clear stored tokens, redirect to login, ...
-          return
-        })
-        .finally(() => {
-          isRefreshing = false
-        }),
-    ).filter((value) => Boolean(value))
-  } else {
-    // Will only emit once the Promise is resolved
-    forward$ = fromPromise(
-      new Promise((resolve) => {
-        // @ts-ignore
-        pendingRequests.push(() => resolve())
-      }),
-    )
-  }
-
-  // @ts-ignore
-  return forward$.flatMap(() => {
-    return forward(operation)
-  })
-}
-
-const authLink = setContext((_, { headers }) => {
-  // get the authentication token from local storage if it exists
-  const token = localStorage.getItem('user.token')
-  // return the headers to the context so httpLink can read them
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : '',
-    },
-  }
-})
-
-const httpLink = createHttpLink({
-  uri: import.meta.env.VITE_HOST,
-})
-
-// @ts-ignore
-const erroLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
-  if (graphQLErrors){
-    if(graphQLErrors.some((error) => (error as any).tokenExpired)) {
-      return refreshTokenAction(forward, operation)
+const authentication = createAuthenticationLink({
+  refresh: async () => {
+    const { data } = await refreshToken()
+    const tokens = data.data?.refreshToken_v1
+    if (!tokens?.token || !tokens.refreshToken) {
+      throw new Error(data.errors?.[0]?.message || 'Session could not be refreshed')
     }
-    graphQLErrors.map(({ message, locations, path }) => console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`))
-  }
-
-  if (networkError) console.log(`[Network error]: ${networkError}`)
+    return tokens
+  },
+  onRefresh: tokens => store.dispatch(refreshAccessToken(tokens.token)),
+  onExpired: () => {
+    store.dispatch(logout())
+    void apolloClient.clearStore()
+  },
 })
 
 export const apolloClient = new ApolloClient({
-  link: ApolloLink.from([retryLink, erroLink, authLink, httpLink]),
+  link: ApolloLink.from([
+    authentication,
+    retryLink,
+    new HttpLink({ uri: import.meta.env.VITE_HOST || '/graphql' }),
+  ]),
   cache: new InMemoryCache(),
-  defaultOptions: {
-    watchQuery: {
-      errorPolicy: 'none',
-    },
-    query: {
-      errorPolicy: 'none',
-    },
-    mutate: {
-      errorPolicy: 'all',
-    },
-  },
+
 })
 
 export default apolloClient

@@ -1,4 +1,5 @@
-import { useMutation } from "@apollo/client";
+import type { UserToken } from '../../../app/reducers/userSlice';
+import { useMutation } from '@apollo/client/react';
 import gql from "graphql-tag";
 import * as _ from 'lodash';
 import React, { useEffect, useState } from "react";
@@ -29,13 +30,14 @@ export const VerifyUser: React.FC<any> = ({ match }) => {
   const history = useHistory()
   const dispatch = useDispatch()
 
-  const [verify, { loading: verifying, data, error: verifiedError }] = useMutation(VERIFY_EMAIL_MUTATION, {
+  const [verify, { loading: verifying, data, error: verifiedError }] = useMutation<{ verifyEmail_v1: UserToken }>(VERIFY_EMAIL_MUTATION, {
     errorPolicy: "none",
   });
 
   const doVerifyUser = async () => {
     try {
       const { data } = await verify({ variables: { verifyToken } })
+      if (!data) throw new Error("Missing mutation response")
       dispatch(login(data.verifyEmail_v1))
       setVerified(true)
       localStorage.setItem('user.verifyToken', verifyToken)

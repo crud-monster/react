@@ -1,4 +1,5 @@
-import { useMutation } from "@apollo/client";
+import type { UserToken } from '../../../app/reducers/userSlice';
+import { useMutation } from '@apollo/client/react';
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
@@ -20,11 +21,11 @@ export const ForgotenPasswordReset: React.FC<any> = ({ match }) => {
   const history = useHistory()
   const dispatch = useDispatch()
 
-  const [doForgottenPasswordCheck, { loading: loadingForgottenPasswordCheck, data: dataForgottenPasswordCheck }] = useMutation(FORGOTTEN_PASSWORD_CHECK_MUTATION, {
+  const [doForgottenPasswordCheck, { loading: loadingForgottenPasswordCheck, data: dataForgottenPasswordCheck }] = useMutation<{ check: { status: string } }>(FORGOTTEN_PASSWORD_CHECK_MUTATION, {
     errorPolicy: "none",
   });
 
-  const [doForgottenPasswordReset, { loading, data }] = useMutation(FORGOTTEN_PASSWORD_RESET_MUTATION, {
+  const [doForgottenPasswordReset, { loading, data }] = useMutation<{ reset: UserToken }>(FORGOTTEN_PASSWORD_RESET_MUTATION, {
     errorPolicy: "none",
   });
 
@@ -61,6 +62,7 @@ export const ForgotenPasswordReset: React.FC<any> = ({ match }) => {
     try {
       dispatch(changeState('processing'))
       const { data } = await doForgottenPasswordReset({ variables: { token, password } })
+      if (!data) throw new Error("Missing mutation response")
       dispatch(login(data.reset))
       history.replace('/user/projects')
     } catch (ex) {
