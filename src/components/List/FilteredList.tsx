@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import './FilteredList.css'
 import FilterItem from './FilterItem'
 import { IFilteredField } from './RowItem'
 import Table, { ITableList, ITableQueries } from './Table'
 
-export interface IProjectFilterList {
+export interface FilteredListProps {
   name: string
   userId?: string
   adminMode?: boolean
@@ -61,9 +61,11 @@ const filterDestruct = (filter: any) => {
   return fo
 }
 
-export const FilteredList: React.FC<IProjectFilterList> = ({ name, userId, adminMode = false, queries, fields, filter: staticFilter, onCreate, onEdit, getEditLink }) => {
+export type IProjectFilterList = FilteredListProps
+
+function FilteredList({ name, userId, adminMode = false, queries, fields, filter: staticFilter, onCreate, onEdit, getEditLink }: FilteredListProps) {
   const [filter, setFilter] = useState(adminMode ? createFilter() : null)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   // console.log(filter, listFilter)
   const createDefaultFilter = useCallback((userId?: string) => {
@@ -108,7 +110,7 @@ export const FilteredList: React.FC<IProjectFilterList> = ({ name, userId, admin
 
   const onCreateNew = () => {
     if (onCreate) onCreate()
-    else history.push('/user/' + name.toLowerCase() + '/create')
+    else navigate('/user/' + name.toLowerCase() + '/create')
   }
 
   // if is not adminMode,

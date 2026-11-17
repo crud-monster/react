@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client";
 import React, { useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from "../../../app/hooks";
 import { changeState, login, UserToken } from "../../../app/reducers/userSlice";
 import { isEmailValid, passwordStrong } from "../../../app/utils";
@@ -9,14 +9,14 @@ import PasswordComponent from "./PasswordComponent";
 
 import REGISTER_MUTATION from './graphql/register.gql';
 
-export const Register: React.FC = () => {
+function Register() {
   const defaultPath = import.meta.env.VITE_DEFAULT_USER_PATH || '/user/dashboard'
 
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [copy, setCopy] = useState("");
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useAppDispatch();
 
   const [registerMutation, { loading, data }] = useMutation(REGISTER_MUTATION, {
@@ -46,7 +46,7 @@ export const Register: React.FC = () => {
 
       dispatch(login(userToken))
 
-      history.replace(defaultPath)
+      navigate(defaultPath, { replace: true })
     } catch (ex) {
       console.log('onError', data)
       setEmailProbablyTaken(true)

@@ -1,10 +1,9 @@
 import { useMutation } from "@apollo/client";
 import gql from "graphql-tag";
-import * as _ from 'lodash';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { useHistory } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { login } from "../../../app/reducers/userSlice";
 
 const VERIFY_EMAIL_MUTATION = gql`
@@ -22,50 +21,36 @@ const VERIFY_EMAIL_MUTATION = gql`
   }
 `;
 
-export const VerifyUser: React.FC<any> = ({ match }) => {
-  const verifyToken = _.get(match, 'params.verifyToken')
+function VerifyUser() {
+  const { verifyToken } = useParams<'verifyToken'>()
   const [verified, setVerified] = useState(false);
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
 
   const [verify, { loading: verifying, data, error: verifiedError }] = useMutation(VERIFY_EMAIL_MUTATION, {
     errorPolicy: "none",
   });
 
-  const doVerifyUser = async () => {
-    try {
-      const { data } = await verify({ variables: { verifyToken } })
+  const pending = useRef<{ token: string; request: ReturnType<typeof verify> }>()
+  useEffect(() => {
+    if (!verifyToken) return
+    let active = true
+    let timeout: ReturnType<typeof setTimeout> | undefined
+    if (localStorage.getItem('user.verified') === 'true' && localStorage.getItem('user.verifyToken') === verifyToken) {
+      navigate('/user/dashboard', { replace: true })
+      return
+    }
+    if (pending.current?.token !== verifyToken) pending.current = { token: verifyToken, request: verify({ variables: { verifyToken } }) }
+    pending.current.request.then(({ data }) => {
+      if (!active || !data) return
       dispatch(login(data.verifyEmail_v1))
       setVerified(true)
       localStorage.setItem('user.verifyToken', verifyToken)
-      setTimeout(() => {
-        history.replace('/user/projects')
-      }, 2000)
-    } catch (ex) {
-      console.log('onError', data)
-    }
-
-  };
-
-  const onVerifyUser = () => {
-    const previouslyVerified = localStorage.getItem('user.verifyToken')
-    const userVerified = localStorage.getItem('user.verified') === 'true'
-
-    // user probably comming with the same link
-    // what was for his first verified
-    if (userVerified && previouslyVerified === verifyToken) {
-      history.replace('/user/projects')
-    } else {
-      doVerifyUser()
-    }
-  }
-
-  useEffect(() => {
-    if (verifyToken) {
-      onVerifyUser()
-    }
-  })
+      timeout = setTimeout(() => navigate('/user/dashboard', { replace: true }), 2000)
+    }).catch(() => { /* The mutation error is displayed below. */ })
+    return () => { active = false; clearTimeout(timeout) }
+  }, [verifyToken, verify, dispatch, navigate])
 
 
   return (<section>

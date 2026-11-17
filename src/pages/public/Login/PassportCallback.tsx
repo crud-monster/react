@@ -1,53 +1,53 @@
 import axios from 'axios'
-import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import type { AxiosResponse } from 'axios'
+import React, { useEffect, useRef, useState } from 'react'
 import { Alert } from 'react-bootstrap'
-import { Link, useHistory, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch } from '../../../app/hooks'
 import { login } from '../../../app/reducers/userSlice'
+import type { UserToken } from '../../../app/reducers/userSlice'
 import { getGraphqlMonsterClientAppRoot } from '../../../app/utils'
 
-export const tokenFromFacebookCode = async (type: string, code: string) => {
-    return axios.get(`${getGraphqlMonsterClientAppRoot()}/auth/${type}/callback?code=${code}`)
+export function tokenFromFacebookCode(type: string, code: string) {
+  return axios.get<UserToken>(`${getGraphqlMonsterClientAppRoot()}/auth/${type}/callback?${new URLSearchParams({ code })}`)
 }
 
-export const PassportCallback: React.FC<{ type: string }> = ({ type }) => {
-    const location = useLocation()
-    const codeRaw = _.get(location, 'search', '').split('?code=')
-    const code = codeRaw.length > 1 ? codeRaw[1] : ''
+interface PassportCallbackProps {
+  type: string
+}
 
+function PassportCallback({ type }: PassportCallbackProps) {
+  const code = new URLSearchParams(useLocation().search).get('code')
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const [error, setError] = useState<string>()
+  const pending = useRef<{ key: string; request: Promise<AxiosResponse<UserToken>> }>()
 
-    const history = useHistory()
-    const dispatch = useAppDispatch();
-
-    const [error, setError] = useState<string>()
-
-    const showError = (errorMessage: string) => {
-        setError(errorMessage)
-        setTimeout(() => {
-            history.replace('/login')
-        }, 4000)
+  useEffect(() => {
+    let active = true
+    let timeout: ReturnType<typeof setTimeout> | undefined
+    const fail = (message: string) => {
+      if (!active) return
+      setError(message)
+      timeout = setTimeout(() => navigate('/login', { replace: true }), 4000)
     }
+    if (!code) fail('User denied')
+    else {
+      const key = `${type}:${code}`
+      if (pending.current?.key !== key) pending.current = { key, request: tokenFromFacebookCode(type, code) }
+      pending.current.request.then(({ data }) => {
+        if (!active) return
+        dispatch(login(data))
+        navigate('/user/dashboard', { replace: true })
+      }).catch(error => {
+        const message = axios.isAxiosError(error) ? error.response?.data?.error?.message : undefined
+        fail(typeof message === 'string' ? message : error instanceof Error ? error.message : 'Login failed')
+      })
+    }
+    return () => { active = false; clearTimeout(timeout) }
+  }, [code, type, dispatch, navigate])
 
-    useEffect(() => {
-        const request = async () => {
-            try {
-                const data = await tokenFromFacebookCode(type, code)
-                dispatch(login(data as any))
-                history.replace('/user/projects')
-            } catch (ex) {
-                const response = JSON.parse(_.get(ex, 'request.response', '{}'))
-                showError(response.error?.message || (ex instanceof Error ? ex.message : String(ex)))
-            }
-
-
-        }
-
-        if (code) request()
-        else showError('User denied')
-    })
-
-    return (<>
-        {error && <Alert variant={'danger'}>{type} login isn't work due "{error}" You will be redirect back to <Link to="/login">Login</Link></Alert>}
-    </>)
+  return <>{error && <Alert variant="danger">{type} login failed: {error}. Return to <Link to="/login">Login</Link>.</Alert>}</>
 }
+
+export default PassportCallback

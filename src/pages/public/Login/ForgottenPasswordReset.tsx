@@ -1,9 +1,8 @@
 import { useMutation } from "@apollo/client";
-import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { changeState, login } from "../../../app/reducers/userSlice";
 import { isPasswordValid, passwordStrong } from "../../../app/utils";
 import PasswordComponent from "./PasswordComponent";
@@ -12,12 +11,12 @@ import FORGOTTEN_PASSWORD_CHECK_MUTATION from './graphql/forgotten-password-chec
 import FORGOTTEN_PASSWORD_RESET_MUTATION from './graphql/forgotten-password-reset.gql';
 
 
-export const ForgotenPasswordReset: React.FC<any> = ({ match }) => {
-  const token = _.get(match, 'params.token')
+function ForgottenPasswordReset() {
+  const { token } = useParams<'token'>()
   const [password, setPassword] = useState("");
   const [copy, setCopy] = useState("");
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
 
   const [doForgottenPasswordCheck, { loading: loadingForgottenPasswordCheck, data: dataForgottenPasswordCheck }] = useMutation(FORGOTTEN_PASSWORD_CHECK_MUTATION, {
@@ -62,7 +61,7 @@ export const ForgotenPasswordReset: React.FC<any> = ({ match }) => {
       dispatch(changeState('processing'))
       const { data } = await doForgottenPasswordReset({ variables: { token, password } })
       dispatch(login(data.reset))
-      history.replace('/user/projects')
+      navigate('/user/dashboard', { replace: true })
     } catch (ex) {
       console.log('onError', data)
 
@@ -158,6 +157,6 @@ export const ForgotenPasswordReset: React.FC<any> = ({ match }) => {
 
 };
 
-export default ForgotenPasswordReset;
+export default ForgottenPasswordReset;
 
 export { FORGOTTEN_PASSWORD_CHECK_MUTATION, FORGOTTEN_PASSWORD_RESET_MUTATION };

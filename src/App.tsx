@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
+import { Link, Route, Routes } from "react-router-dom";
 import Header from "./components/Header/Header";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import UserRoleEdit from "./pages/admin/UserRoles/UserRolesEdit";
@@ -9,70 +9,36 @@ import Home from "./pages/public/Home/Home";
 import ForgottenPassword from "./pages/public/Login/ForgottenPassword";
 import ForgottenPasswordReset from "./pages/public/Login/ForgottenPasswordReset";
 import Login from "./pages/public/Login/Login";
-import { PassportCallback } from "./pages/public/Login/PassportCallback";
+import PassportCallback from "./pages/public/Login/PassportCallback";
 import Register from "./pages/public/Login/Register";
 import VerifyUser from "./pages/public/Login/VerifyUser";
+import UserInfo from "./pages/public/Login/UserInfo";
 import UserDashboard from "./pages/user/UserDashboard/UserDashboard";
 
-export default function App() {
+function App() {
   return (
     <>
       <Header />
-      {/*
-              A <Switch> looks through all its children <Route>
-              elements and renders the first one whose path
-              matches the current URL. Use a <Switch> any time
-              you have multiple routes, but you want only one
-              of them to render at a time
-            */}
-      <Switch>
-        <Route exact path="/">
-          <Home />
-        </Route>
-        <Route exact path="/login">
-          <Login />
-        </Route>
-        <Route path="/login/facebook">
-          <PassportCallback type={"facebook"} />
-        </Route>
-        <Route path="/login/github">
-          <PassportCallback type={"github"} />
-        </Route>
-        <Route path="/login/google">
-          <PassportCallback type={"google"} />
-        </Route>
-        <Route path="/register">
-          <Register />
-        </Route>
-
-        <Route
-          path="/forgotten-password/:token"
-          component={ForgottenPasswordReset}
-        />
-        <Route exact path="/forgotten-password">
-          <ForgottenPassword />
-        </Route>
-
-        <Route path="/verify-user/:verifyToken" component={VerifyUser} />
-
-        <ProtectedRoute path="/user/dashboard">
-          <UserDashboard />
-        </ProtectedRoute>
-        <Route path="/user/info">{/* <UserInfo /> */}</Route>
-
-        <ProtectedRoute path="/admin/users" role={"admin"}>
-          <UsersList adminMode={true} />
-        </ProtectedRoute>
-        <ProtectedRoute path="/admin/roles" role={"admin"}>
-          <UserRolesList adminMode={true} />
-        </ProtectedRoute>
-        <ProtectedRoute
-          path="/user/roles/:id"
-          role={"admin"}
-          children={<UserRoleEdit />}
-        />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/login/facebook" element={<PassportCallback type="facebook" />} />
+        <Route path="/login/github" element={<PassportCallback type="github" />} />
+        <Route path="/login/google" element={<PassportCallback type="google" />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgotten-password/:token" element={<ForgottenPasswordReset />} />
+        <Route path="/forgotten-password" element={<ForgottenPassword />} />
+        <Route path="/verify-user/:verifyToken" element={<VerifyUser />} />
+        <Route path="/user/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+        <Route path="/user/info" element={<ProtectedRoute><UserInfo /></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute role="admin"><UsersList adminMode /></ProtectedRoute>} />
+        <Route path="/admin/roles" element={<ProtectedRoute role="admin"><UserRolesList adminMode /></ProtectedRoute>} />
+        <Route path="/user/roles/:id" element={<ProtectedRoute role="admin"><UserRoleEdit /></ProtectedRoute>} />
+        <Route path="*" element={<main><h1>Page not found</h1><Link to="/">Go to home page</Link></main>} />
+      </Routes>
     </>
   );
 }
 
+
+export default App;
