@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
 import { refreshToken } from './refreshToken'
 import { uploadFile } from './utils'
+import { clearSession, saveSession } from './session/storage'
 
 const originalAdapter = axios.defaults.adapter
 const adapter = vi.fn()
@@ -21,7 +22,7 @@ beforeEach(() => {
 afterEach(() => {
   axios.defaults.adapter = originalAdapter
   vi.unstubAllEnvs()
-  localStorage.clear()
+  clearSession()
 })
 
 test('Axios serializes the refresh-token GraphQL request as JSON', async () => {
@@ -61,4 +62,18 @@ test('upload failures expose the backend message through the promise and callbac
 
   await expect(uploadFile()(new File(['example'], 'example.txt'), callback)).rejects.toThrow('Upload denied')
   expect(callback).toHaveBeenCalledWith(expect.objectContaining({ message: 'Upload denied' }), null)
+})
+
+test('cookie-mode uploads use the memory access token, credentials and the CSRF guard header', async () => {
+  vi.stubEnv('VITE_AUTH_MODE', 'http-only')
+  vi.stubEnv('VITE_SESSION_REFRESH_URL', 'https://api.example.test/session/refresh')
+  vi.stubEnv('VITE_SESSION_LOGOUT_URL', 'https://api.example.test/session/logout')
+  saveSession({ token: 'memory-access', user: { id: '1', email: 'user@example.test', verified: true, roles: [] } })
+  await uploadFile()(new File(['example'], 'example.txt'))
+  const [config] = adapter.mock.calls[0]
+  expect(config.withCredentials).toBe(true)
+  expect(config.headers.get('Authorization')).toBe('Bearer memory-access')
+  expect(config.headers.get('X-CSRF-Protection')).toBe('1')
+  expect(localStorage.getItem('user.token')).toBeNull()
+  expect(localStorage.getItem('user.refreshToken')).toBeNull()
 })

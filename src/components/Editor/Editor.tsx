@@ -1,3 +1,4 @@
+import { getSessionUserId } from '../../app/session/storage'
 import { useMutation, useQuery } from '@apollo/client'
 import React, { useCallback, useState } from 'react'
 import Loading from '../Loading/Loading'
@@ -89,7 +90,7 @@ export const Editor = ({ name, form, id, renameError, onUpdated, updateCache, qu
       } else {
         createProjectMutation({
           variables: {
-            userId: localStorage.getItem('user.id'),
+            userId: getSessionUserId(),
             ...data,
           },
         })

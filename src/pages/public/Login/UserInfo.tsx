@@ -1,3 +1,6 @@
+import { sessionDocument } from '../../../app/session/documents';
+import { useAppSelector } from '../../../app/hooks';
+import { selectUser } from '../../../app/reducers/userSlice';
 import AuthLayout from '../../../components/ui/AuthLayout';
 import Field from '../../../components/ui/Field';
 import Button from '../../../components/ui/Button';
@@ -11,7 +14,7 @@ import { passwordStrong } from "../../../app/utils";
 import { useDispatch } from "react-redux";
 import { login } from "../../../app/reducers/userSlice";
 
-const CHANGE_PASSWORD_MUTATION = gql`
+const CHANGE_PASSWORD_MUTATION = sessionDocument(gql`
   mutation changePassword($userId: ID!, $oldPassword: String!, $newPassword: String!) {
     changePassword_v1(userId: $userId, oldPassword: $oldPassword, newPassword: $newPassword) {
       refreshToken
@@ -24,7 +27,7 @@ const CHANGE_PASSWORD_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
 const VERIFY_EMAIL_RESEND_MUTATION = gql`
   mutation verifyEmailResend($userId: ID!) {
@@ -45,7 +48,7 @@ function UserInfo() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  
+
 
   const [invalidOldPassword, setInvalidOldPassword] = useState(false);
 
@@ -53,11 +56,12 @@ function UserInfo() {
   const [validPass, setValidPass] = useState(false);
   const [strong, setStrong] = useState(passwordStrong(''))
 
-  
 
-  const userId = localStorage.getItem('user.id') || ''
-  const userEmail = localStorage.getItem('user.email') || ''
-  const userVerified = localStorage.getItem('user.verified') == 'true'
+
+  const user = useAppSelector(selectUser)
+  const userId = user?.id || ''
+  const userEmail = user?.email || ''
+  const userVerified = user?.verified === true
 
   const [changePassword, { loading, data, error }] = useMutation(CHANGE_PASSWORD_MUTATION, {
     errorPolicy: "none",
@@ -77,9 +81,9 @@ function UserInfo() {
         setShowVerifyEmailSended(false)
       }, 5000)
     } catch (ex) {
-        console.log('onError', data)
+
       }
-  
+
   };
 
   const onChangePassword = async () => {
@@ -94,7 +98,7 @@ function UserInfo() {
       const { data } = await changePassword({ variables: { userId, oldPassword, newPassword } })
       dispatch(login(data.changePassword_v1))
       setShowPasswordChanged(true)
-      
+
       setOldPassword('')
       setNewPassword('')
       setNewPasswordCopy('')
@@ -104,10 +108,10 @@ function UserInfo() {
         setShowPasswordChanged(false)
       }, 5000)
     } catch (ex) {
-        console.log('onError', data)
+
         setInvalidOldPassword(true)
       }
-  
+
   };
 
 
@@ -124,7 +128,7 @@ function UserInfo() {
     setInvalidOldPassword(false);
     setInvalidPass(false);
 
-    
+
     if (pass == newPasswordCopy) {
       setInvalidNewPasswordCopy(false)
     }

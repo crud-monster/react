@@ -1,3 +1,5 @@
+import { sessionDocument } from '../../../app/session/documents';
+import { getSessionUser, markVerificationToken, wasVerificationTokenUsed } from '../../../app/session/storage';
 import AuthLayout from '../../../components/ui/AuthLayout';
 import Alert from '../../../components/ui/Alert';
 import Button from '../../../components/ui/Button';
@@ -8,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from 'react-router-dom';
 import { login } from "../../../app/reducers/userSlice";
 
-const VERIFY_EMAIL_MUTATION = gql`
+const VERIFY_EMAIL_MUTATION = sessionDocument(gql`
   mutation verifyEmail($verifyToken: String!) {
     verifyEmail_v1(verifyToken: $verifyToken) {
       refreshToken
@@ -21,7 +23,7 @@ const VERIFY_EMAIL_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
 function VerifyUser() {
   const { verifyToken } = useParams<'verifyToken'>()
@@ -39,7 +41,7 @@ function VerifyUser() {
     if (!verifyToken) return
     let active = true
     let timeout: ReturnType<typeof setTimeout> | undefined
-    if (localStorage.getItem('user.verified') === 'true' && localStorage.getItem('user.verifyToken') === verifyToken) {
+    if (getSessionUser()?.verified === true && wasVerificationTokenUsed(verifyToken)) {
       navigate('/user/dashboard', { replace: true })
       return
     }
@@ -48,7 +50,7 @@ function VerifyUser() {
       if (!active || !data) return
       dispatch(login(data.verifyEmail_v1))
       setVerified(true)
-      localStorage.setItem('user.verifyToken', verifyToken)
+      markVerificationToken(verifyToken)
       timeout = setTimeout(() => navigate('/user/dashboard', { replace: true }), 2000)
     }).catch(() => { /* The mutation error is displayed below. */ })
     return () => { active = false; clearTimeout(timeout) }

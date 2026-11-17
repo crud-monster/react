@@ -1,4 +1,6 @@
 import axios from 'axios'
+import { getAccessToken } from './session/storage'
+import { sessionRequestOptions } from './session/config'
 export const getGraphqlMonsterClientAppRoot = () => import.meta.env.VITE_HOST?.substr(0,import.meta.env.VITE_HOST?.length - 8)
 
 export const isEmailValid = (email: string) => {
@@ -63,15 +65,16 @@ export const passwordStrong = (password: string):IPasswordStrongResult => {
 
 export type TUploadFileCallback = (err: any, data: any)=>void | null | undefined
 export const uploadFile = (name='files') => async (file: any, callback:TUploadFileCallback|null| undefined = undefined) => {
-  const userToken = localStorage.getItem('user.token')
+  const userToken = getAccessToken()
   const data = new FormData()
   data.append('file', file)
   return new Promise(async (resolve, reject) => {
     try {
       const event = await axios.post(`${getGraphqlMonsterClientAppRoot()}/upload`, data, {
-        // authorization: Bearer
+        ...sessionRequestOptions(),
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          ...sessionRequestOptions().headers,
+          ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}),
         },
       })
 

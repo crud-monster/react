@@ -26,6 +26,6 @@ test('OAuth reads the code regardless of parameter order and exchanges it once i
 
   expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
   expect(get).toHaveBeenCalledTimes(1)
-  expect(get).toHaveBeenCalledWith('https://api.example.test/auth/github/callback?code=a%2Bb%26c')
+  expect(get).toHaveBeenCalledWith('https://api.example.test/auth/github/callback?code=a%2Bb%26c&state=example', expect.objectContaining({ timeout: 15000 }))
   expect(store.getState().user.user?.token).toBe('token')
 })

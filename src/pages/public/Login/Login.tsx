@@ -1,3 +1,5 @@
+import { sessionDocument } from '../../../app/session/documents';
+import { getRememberedEmail } from '../../../app/session/storage';
 import AuthLayout from '../../../components/ui/AuthLayout';
 import Field from '../../../components/ui/Field';
 import Button from '../../../components/ui/Button';
@@ -10,10 +12,11 @@ import { changeState, login, UserToken } from '../../../app/reducers/userSlice';
 import { getGraphqlMonsterClientAppRoot } from '../../../app/utils';
 import { isEmailValid } from './utils';
 
-import LOGIN_QL from './graphql/login.gql';
+import LOGIN_QL_DOCUMENT from './graphql/login.gql';
+const LOGIN_QL = sessionDocument(LOGIN_QL_DOCUMENT);
 
 function Login() {
-    const [email, setEmail] = useState(localStorage.getItem('user.email') || '')
+    const [email, setEmail] = useState(getRememberedEmail)
     const [pass, setPass] = useState('')
 
     const [invalidEmail, setInvalidEmail] = useState(false)

@@ -1,3 +1,4 @@
+import { sessionDocument } from '../../../app/session/documents';
 import AuthLayout from '../../../components/ui/AuthLayout';
 import Field from '../../../components/ui/Field';
 import Button from '../../../components/ui/Button';
@@ -11,7 +12,8 @@ import { isPasswordValid, passwordStrong } from "../../../app/utils";
 import PasswordComponent from "./PasswordComponent";
 
 import FORGOTTEN_PASSWORD_CHECK_MUTATION from './graphql/forgotten-password-check.gql';
-import FORGOTTEN_PASSWORD_RESET_MUTATION from './graphql/forgotten-password-reset.gql';
+import FORGOTTEN_PASSWORD_RESET_MUTATION_DOCUMENT from './graphql/forgotten-password-reset.gql';
+const FORGOTTEN_PASSWORD_RESET_MUTATION = sessionDocument(FORGOTTEN_PASSWORD_RESET_MUTATION_DOCUMENT);
 
 
 function ForgottenPasswordReset() {
@@ -66,7 +68,7 @@ function ForgottenPasswordReset() {
       dispatch(login(data.reset))
       navigate('/user/dashboard', { replace: true })
     } catch (ex) {
-      console.log('onError', data)
+
 
     }
 

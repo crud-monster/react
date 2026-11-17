@@ -1,3 +1,4 @@
+import { sessionDocument } from '../../../app/session/documents';
 import AuthLayout from '../../../components/ui/AuthLayout';
 import Field from '../../../components/ui/Field';
 import Button from '../../../components/ui/Button';
@@ -10,7 +11,8 @@ import { changeState, login, UserToken } from "../../../app/reducers/userSlice";
 import { isEmailValid, passwordStrong } from "../../../app/utils";
 import PasswordComponent from "./PasswordComponent";
 
-import REGISTER_MUTATION from './graphql/register.gql';
+import REGISTER_MUTATION_DOCUMENT from './graphql/register.gql';
+const REGISTER_MUTATION = sessionDocument(REGISTER_MUTATION_DOCUMENT);
 
 function Register() {
   const defaultPath = import.meta.env.VITE_DEFAULT_USER_PATH || '/user/dashboard'
@@ -51,7 +53,7 @@ function Register() {
 
       navigate(defaultPath, { replace: true })
     } catch (ex) {
-      console.log('onError', data)
+
       setEmailProbablyTaken(true)
     }
 

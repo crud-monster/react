@@ -25,7 +25,7 @@ function ForgottenPassword() {
         await doForgottenPassword({ variables: { email } })
         setEmailSent(true)
       } catch (ex) {
-        console.log('onError', data)
+
         setInvalidEmail(true)
       }
     } else {

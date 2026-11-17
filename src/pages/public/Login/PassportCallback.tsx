@@ -1,3 +1,4 @@
+import { sessionRequestOptions } from '../../../app/session/config';
 import Alert from '../../../components/ui/Alert';
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
@@ -8,8 +9,10 @@ import { login } from '../../../app/reducers/userSlice'
 import type { UserToken } from '../../../app/reducers/userSlice'
 import { getGraphqlMonsterClientAppRoot } from '../../../app/utils'
 
-export function tokenFromFacebookCode(type: string, code: string) {
-  return axios.get<UserToken>(`${getGraphqlMonsterClientAppRoot()}/auth/${type}/callback?${new URLSearchParams({ code })}`)
+export function tokenFromFacebookCode(type: string, code: string, state?: string) {
+  const query = new URLSearchParams({ code })
+  if (state) query.set('state', state)
+  return axios.get<UserToken>(`${getGraphqlMonsterClientAppRoot()}/auth/${type}/callback?${query}`, sessionRequestOptions())
 }
 
 interface PassportCallbackProps {
@@ -17,7 +20,9 @@ interface PassportCallbackProps {
 }
 
 function PassportCallback({ type }: PassportCallbackProps) {
-  const code = new URLSearchParams(useLocation().search).get('code')
+  const query = new URLSearchParams(useLocation().search)
+  const code = query.get('code')
+  const state = query.get('state')
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const [error, setError] = useState<string>()
@@ -33,8 +38,8 @@ function PassportCallback({ type }: PassportCallbackProps) {
     }
     if (!code) fail('User denied')
     else {
-      const key = `${type}:${code}`
-      if (pending.current?.key !== key) pending.current = { key, request: tokenFromFacebookCode(type, code) }
+      const key = `${type}:${code}:${state || ''}`
+      if (pending.current?.key !== key) pending.current = { key, request: tokenFromFacebookCode(type, code, state || undefined) }
       pending.current.request.then(({ data }) => {
         if (!active) return
         dispatch(login(data))
@@ -45,7 +50,7 @@ function PassportCallback({ type }: PassportCallbackProps) {
       })
     }
     return () => { active = false; clearTimeout(timeout) }
-  }, [code, type, dispatch, navigate])
+  }, [code, state, type, dispatch, navigate])
 
   return <>{error && <Alert variant="danger">{type} login failed: {error}. Return to <Link to="/login">Login</Link>.</Alert>}</>
 }

@@ -31,6 +31,8 @@ For deployment under a subpath, set `VITE_BASE_PATH=/my-app/` in `.env` before b
 
 ## Migration status
 
+HttpOnly session preparation is documented in [docs/http-only.md](docs/http-only.md). The default `VITE_AUTH_MODE=legacy` retains the existing API and localStorage behavior. Enable `http-only` only after implementing the documented backend cookie, refresh, logout and CSRF/CORS contract. In that mode the access token stays in memory, authentication documents do not request refresh credentials, and session restoration uses configured credentialed endpoints.
+
 This stage uses React 18 with the createRoot API and Strict Mode, Vite, TypeScript 5.9 and Vitest. GraphQL files are imported directly, including their fragment dependencies.
 
 When migrating a local environment file, rename `REACT_APP_HOST` to `VITE_HOST`, `REACT_APP_BASENAME` to `VITE_BASE_PATH` and `REACT_APP_DEFAULT_USER_PATH` to `VITE_DEFAULT_USER_PATH`. Replace deployment references to `build/` with `dist/`. The unused CRA service-worker helper has been removed.
