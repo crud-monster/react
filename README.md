@@ -1,30 +1,27 @@
-# GraphQL Monster CRA Template Typescript
+# CRUD Monster · React
 
-The official [GraphQL Monster](https://www.graphql.monster) Typescript template for [Create React App](https://github.com/facebook/create-react-app). With Apollo GraphQL and user management (Login/Register/Reset Password,...)
+React + TypeScript starter with authentication, roles and CRUD administration.
 
-## usage
-To use this template, add `--template graphql-monster-typescript` when creating a new app. 
-
-For example:
+Repository: [crud-monster/react](https://github.com/crud-monster/react).
 
 ```sh
-npx create-react-app my-app --template graphql-monster-typescript
-
-# or
-
-yarn create react-app my-app --template graphql-monster-typescript
+git clone git@github.com:crud-monster/react.git
+cd react
 ```
 
+## Project status
 
+This project continues the original GraphQL Monster CRA template under the CRUD Monster name. The application source currently lives in `template/src`, static assets in `template/public`, and template dependencies in `template.json`.
 
-For more information, please refer to:
-- [Schema Description](https://graphql.monster/documentation/schema-description) – How create a GraphQL Monster model.
-- [Getting Started with React](https://create-react-app.dev/docs/getting-started) – How to create a new app.
-- [React User Guide](https://create-react-app.dev) – How to develop apps bootstrapped with Create React App.
+Conversion to a standalone application and the React 18 upgrade will be delivered separately. Cloning this repository currently gives you the legacy template source, not a standalone runnable application.
 
- ## Contain
+The branding change preserves existing dependencies, build commands and GraphQL operations. The backend still needs to implement the existing GraphQL Monster contract, including `_v1` operations. Links in the sample UI refer to documentation for that contract.
 
- - [GraphQL Monster](https://www.graphql.monster)
- - [Apollo Client](https://www.apollographql.com/docs/react)
- - [gh-pages](https://www.npmjs.com/package/gh-pages)
- - [spa github pages](https://github.com/rafgraph/spa-github-pages)
+## Included features
+
+- Apollo GraphQL integration.
+- Login, registration, email verification and password reset.
+- Social login callbacks.
+- Protected routes and user roles.
+- User and role administration.
+- Reusable CRUD list and editor components.

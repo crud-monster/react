@@ -1,7 +1,6 @@
 {
-  "name": "cra-template-graphql-monster-typescript",
+  "name": "crud-monster-react",
   "version": "0.7.0",
-  "homepage": "https://graphql.monster",
   "keywords": [
     "react",
     "create-react-app",
@@ -10,23 +9,24 @@
     "reduxjs",
     "react-redux"
   ],
-  "description": "The official graphql.monster+TS template for Create React App.",
+  "description": "CRUD Monster React + TypeScript starter with authentication, roles and CRUD administration.",
   "main": "template.json",
   "repository": {
     "type": "git",
-    "url": "https://https://github.com/miuan/cra-template-graphq-monster-typescript"
+    "url": "git+https://github.com/crud-monster/react.git"
   },
   "license": "MIT",
   "engines": {
     "node": ">=8"
   },
   "bugs": {
-    "url": "https://github.com/miuan/cra-template-graphq-monster-typescript/issues"
+    "url": "https://github.com/crud-monster/react/issues"
   },
   "files": [
     "template",
     "template.json"
-  ],"dependencies": {
+  ],
+  "dependencies": {
     "@apollo/client": "^3.3.15",
     "@reduxjs/toolkit": "^1.5.1",
     "@testing-library/jest-dom": "^4.2.4",
