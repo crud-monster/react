@@ -2,7 +2,23 @@
 
 React + TypeScript starter with authentication, roles and CRUD administration.
 
-## Getting started
+## Create your own application
+
+The `create-crud-monster` generator is implemented in `packages/create-crud-monster`. Once published to npm, it will support:
+
+```sh
+npm create crud-monster@latest my-app
+cd my-app
+npm ci
+# Set VITE_HOST in .env.
+npm run dev
+```
+
+It bundles the starter, sets your application's package name, prepares `.env`, and leaves out Git history and generator tooling. It does not install dependencies automatically. Until the first npm release, see the [generator README](packages/create-crud-monster/README.md) to build and run the local tarball.
+
+CRUD Monster React is a boilerplate that you own and customize. Vite runs the development server and builds the production frontend; authentication and administration require a compatible backend. Changes to this repository are not automatically applied to generated applications.
+
+## Getting started by cloning
 
 Use Node.js 22.12+ or 24+:
 

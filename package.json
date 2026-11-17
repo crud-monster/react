@@ -9,7 +9,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=22.12.0"
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   },
   "bugs": {
     "url": "https://github.com/crud-monster/react/issues"
@@ -57,7 +57,9 @@
     "test:watch": "vitest",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "build-and-serve": "npm run build && npm run preview"
+    "build-and-serve": "npm run build && npm run preview",
+    "test:generator": "npm --prefix packages/create-crud-monster test",
+    "pack:generator": "npm pack ./packages/create-crud-monster"
   },
   "type": "module"
 }
