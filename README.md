@@ -32,6 +32,8 @@ For deployment under a subpath, configure both `PUBLIC_URL` and `REACT_APP_BASEN
 
 This stage uses React 18 with the createRoot API and Strict Mode, CRA 5 and TypeScript 4.9. Migration to Vite will be delivered separately.
 
+Axios uses the 1.x release line. Redux Toolkit is temporarily limited to 2.2.x and React Redux to 9.1.x to retain compatibility with TypeScript 4.9. Upgrade these together with TypeScript when replacing CRA: current Redux Toolkit releases require TypeScript 5.4+, while CRA 5 declares support only for TypeScript 3 and 4.
+
 Existing GraphQL operations still target the original backend contract, including `_v1` operations. Renaming to CRUD Monster does not migrate the backend. Legacy documentation links in the sample UI refer to that API.
 
 ## Included features
