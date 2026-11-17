@@ -80,9 +80,9 @@ export const uploadFile = (name='files') => async (file: any, callback:TUploadFi
       }
       resolve(event.data)
     } catch(ex) {
-      let error = ex
-      if(ex.response?.data?.error?.message){
-        error = ex.response?.data.error
+      let error = ex instanceof Error ? ex : new Error(String(ex))
+      if(axios.isAxiosError(ex) && ex.response?.data?.error?.message){
+        error = new Error(ex.response.data.error.message)
       }
 
       if(error.message === "Network Error"){

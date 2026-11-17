@@ -77,7 +77,7 @@ export const Editor = ({ name, form, id, renameError, onUpdated, updateCache, qu
   // }
 
   const onSubmit = useCallback(
-    (data) => {
+    (data: Record<string, unknown>) => {
       if (localId) {
         setErrors(null)
         updateProjectMutation({

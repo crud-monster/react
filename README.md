@@ -2,20 +2,37 @@
 
 React + TypeScript starter with authentication, roles and CRUD administration.
 
-Repository: [crud-monster/react](https://github.com/crud-monster/react).
+## Getting started
+
+Use Node.js 22 or newer:
 
 ```sh
 git clone git@github.com:crud-monster/react.git
 cd react
+npm ci
+cp .env.example .env
+npm start
 ```
 
-## Project status
+Set `REACT_APP_HOST` in `.env` to a compatible GraphQL endpoint. Environment variables are included in the browser bundle; do not put secrets in them. Restart the development server after editing `.env`.
 
-This project continues the original GraphQL Monster CRA template under the CRUD Monster name. The application source currently lives in `template/src`, static assets in `template/public`, and template dependencies in `template.json`.
+## Commands
 
-Conversion to a standalone application and the React 18 upgrade will be delivered separately. Cloning this repository currently gives you the legacy template source, not a standalone runnable application.
+- `npm start`: start the development server.
+- `npm run typecheck`: check TypeScript types.
+- `npm test -- --watchAll=false`: run tests once.
+- `npm run build`: create the production bundle in `build/`.
+- `npm run serve`: preview the production bundle.
 
-The branding change preserves existing dependencies, build commands and GraphQL operations. The backend still needs to implement the existing GraphQL Monster contract, including `_v1` operations. Links in the sample UI refer to documentation for that contract.
+Source code lives in `src/`, static assets in `public/`, and dependencies and commands in the root `package.json`. This is a standalone application, not a CRA template package.
+
+For deployment under a subpath, configure both `PUBLIC_URL` and `REACT_APP_BASENAME`. Hosting must serve `index.html` for client routes. A GitHub Pages fallback is included; adjust `pathSegmentsToKeep` in `public/404.html` for the deployment path.
+
+## Migration status
+
+This stage retains React 17 and prepares the toolchain with CRA 5 and TypeScript 4.9. React 18 and migration to Vite will be delivered separately.
+
+Existing GraphQL operations still target the original backend contract, including `_v1` operations. Renaming to CRUD Monster does not migrate the backend. Legacy documentation links in the sample UI refer to that API.
 
 ## Included features
 
@@ -25,3 +42,5 @@ The branding change preserves existing dependencies, build commands and GraphQL 
 - Protected routes and user roles.
 - User and role administration.
 - Reusable CRUD list and editor components.
+
+End-to-end verification of backend flows requires a compatible API and test accounts.

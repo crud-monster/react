@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-template/node_modules
+/node_modules
 /.pnp
 .pnp.js
 
@@ -9,17 +9,18 @@ template/node_modules
 /coverage
 
 # production
-template//build
+/build
 
 # misc
-template/.DS_Store
-template/.env.local
-template/.env.development.local
-template/.env.test.local
-template/.env.production.local
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-template/npm-debug.log*
-template/yarn-debug.log*
-template/yarn-error.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 .vscode
+.env
