@@ -1,7 +1,7 @@
+import Alert from '../../../components/ui/Alert';
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
-import { Alert } from 'react-bootstrap'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch } from '../../../app/hooks'
 import { login } from '../../../app/reducers/userSlice'

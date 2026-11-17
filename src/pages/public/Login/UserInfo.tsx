@@ -1,7 +1,10 @@
+import AuthLayout from '../../../components/ui/AuthLayout';
+import Field from '../../../components/ui/Field';
+import Button from '../../../components/ui/Button';
+import Alert from '../../../components/ui/Alert';
 import React, { useState } from "react";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
-import { Modal, Form, Alert, Button } from "react-bootstrap";
 import { Link, useNavigate } from 'react-router-dom';
 import PasswordComponent from "./PasswordComponent";
 import { passwordStrong } from "../../../app/utils";
@@ -138,84 +141,25 @@ function UserInfo() {
     }
   };
 
-  return (<>
-  <section className="no-top" data-bgimage="url(images/background/3.png) top">
-      <div className="col-md-12 text-center">
-          <h1>User Setting</h1>
-          {showPasswordChanged ? (<div className="alert alert-success" role="alert">The password was changed</div>): null}
-          {showVerifyEmailSended ? (<div className="alert alert-success" role="alert">Email with verify link was re-send to {userEmail}</div>): null}
-      </div>
-      <div className="col-md-12 text-center">
-          <h2>Email</h2>
-      </div>
-      <div className="container">
-        <div className="row">
-          <div className="col-md-2 offset-md-3">
-            {userEmail}
-          </div>
-          <div className="col-md-7 ">
-            {userVerified?<div>Verified</div>: <div>
-              not verified <Button className="btn-sm" variant="warning" onClick={() => onVerifyEmailResend()} disabled={showVerifyEmailSended}>Resent email with link for verify</Button>
-              
-            </div>}
-          </div>
-          <div className="spacer-single"></div>
-          </div>
-        </div>
-      <div className="col-md-12 text-center">
-          <h2>Change passwod</h2>
-      </div>
-      <div className="container">
-        <div className="row">
-          <div className="col-md-6 offset-md-3">
-            <form name="contactForm" id='contact_form' className="form-border" method="post" action='blank.php'>
-
-
-              <Form>
-                {invalidOldPassword && (<Alert variant={"danger"}>Current password is incorect</Alert>)}
-                {invalidPasswordCopy && (<Alert variant={"danger"}>The retyped password is not the same</Alert>)}
-                <Form.Group controlId="formBasicEmail">
-                  <Form.Label>Current password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Enter email"
-                    onChange={onCurrentPasswordChange}
-                    value={oldPassword}
-                    isInvalid={invalidOldPassword}
-                  />
-                </Form.Group>
-
-                <PasswordComponent password={newPassword} onPasswordChange={onNewPasswordChange} strongPassword={strong} />
-
-                <Form.Group controlId="formBasicPassword">
-                  <Form.Label>Repeat New Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Retype Password"
-                    onChange={onNewPasswordCopyChange}
-                    value={newPasswordCopy}
-                    isInvalid={invalidPasswordCopy}
-                  />
-                </Form.Group>
-              </Form>
-
-              <div id='submit' className="pull-left">
-                {!loading && <Button className="btn-round" variant="primary" onClick={() => onChangePassword()} disabled={!strong.valid}>Change Password</Button>}
-                {loading && <Button className="btn-round" variant="primary" disabled>Loading...</Button>}
-
-                <div className="clearfix"></div>
-
-                
-
-              </div>
-
-            </form>
-          </div>
-        </div>
-      </div>
+  return <main className="page space-y-8">
+    <h1>User settings</h1>
+    {showPasswordChanged && <Alert variant="success">Your password was changed.</Alert>}
+    {showVerifyEmailSended && <Alert variant="success">Verification email sent to {userEmail}.</Alert>}
+    <section className="auth-card space-y-4"><h2>Email</h2><p>{userEmail}</p>
+      {userVerified ? <p>Verified</p> : <Button onClick={() => void onVerifyEmailResend()} disabled={resendLoading || showVerifyEmailSended}>Resend verification email</Button>}
+      {resendError && <Alert variant="danger">{resendError.message}</Alert>}
     </section>
-  </>
-  );
-};
+    <section className="auth-card"><h2 className="mb-5">Change password</h2>
+      <form className="space-y-5" onSubmit={event => { event.preventDefault(); void onChangePassword() }}>
+        {invalidOldPassword && <Alert variant="danger">The current password is incorrect.</Alert>}
+        {invalidPasswordCopy && <Alert variant="danger">The passwords do not match.</Alert>}
+        <Field id="current-password" label="Current password"><input className="field-input" id="current-password" type="password" autoComplete="current-password" required value={oldPassword} onChange={onCurrentPasswordChange} aria-invalid={invalidOldPassword} /></Field>
+        <PasswordComponent password={newPassword} onPasswordChange={onNewPasswordChange} strongPassword={strong} />
+        <Field id="repeat-password" label="Repeat new password"><input className="field-input" id="repeat-password" type="password" autoComplete="new-password" required value={newPasswordCopy} onChange={onNewPasswordCopyChange} aria-invalid={invalidPasswordCopy} /></Field>
+        <Button type="submit" disabled={loading || !strong.valid}>{loading ? 'Saving…' : 'Change password'}</Button>
+      </form>
+    </section>
+  </main>
+}
 
 export default UserInfo;

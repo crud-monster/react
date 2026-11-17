@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Button } from 'react-bootstrap'
-import './Row.css'
+import Button from '../ui/Button'
 import { ListRowItem, IFilteredField } from './RowItem'
 
 export interface IListRowItem {
@@ -33,11 +32,11 @@ export const ListRow: React.FC<IListRowParams> = ({ item, onDelete, name, fields
   return (
     <React.Fragment>
       <tr>
-        <td className="id">{onEdit ? <span role={'link'} tabIndex={0} onKeyPress={()=>{}} onClick={doEdit}>{item.id}</span> : <Link to={editLink}>{item.id}</Link>}</td>
+        <td className="font-mono text-xs">{onEdit ? <span role={'link'} tabIndex={0} onKeyPress={()=>{}} onClick={doEdit}>{item.id}</span> : <Link to={editLink}>{item.id}</Link>}</td>
         {fields.map(
           (field) =>
             field !== 'id' && (
-              <td>
+              <td key={typeof field === 'string' ? field : field.name}>
                 <ListRowItem item={item} field={field} />
               </td>
             ),
@@ -45,7 +44,7 @@ export const ListRow: React.FC<IListRowParams> = ({ item, onDelete, name, fields
         {item.user && <td>{item.user.email}</td>}
 
         {showDelete && (
-          <td className="right">
+          <td className="text-right">
             <Button
               variant="danger"
               size="sm"

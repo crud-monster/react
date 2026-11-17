@@ -1,7 +1,9 @@
+import AuthLayout from '../../../components/ui/AuthLayout';
+import Alert from '../../../components/ui/Alert';
+import Button from '../../../components/ui/Button';
 import { useMutation } from "@apollo/client";
 import gql from "graphql-tag";
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from 'react-router-dom';
 import { login } from "../../../app/reducers/userSlice";
@@ -53,19 +55,11 @@ function VerifyUser() {
   }, [verifyToken, verify, dispatch, navigate])
 
 
-  return (<section>
-    <div className="center-y relative text-center" data-scroll-speed="4">
-      <div className="container">
-        <div className="row">
-          <div className="col-md-8 offset-md-2">
-            {verified ? (<div className="alert alert-success" role="alert">Your account was verified <Button>Start creating</Button></div>) : null}
-            {verifying ? (<div className="alert alert-dark" role="alert">Your accont is verifing...</div>) : null}
-            {!verifyToken || verifiedError ? (<div className="alert alert-dark" role="alert">The code is invalid or already applyed</div>) : null}
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>)
-};
+  return <AuthLayout title="Verify your account">
+    {verified && <Alert variant="success">Your account was verified.</Alert>}
+    {verifying && <p role="status">Verifying your account…</p>}
+    {(!verifyToken || verifiedError) && <Alert variant="danger">The verification link is invalid or has already been used.</Alert>}
+  </AuthLayout>
+}
 
 export default VerifyUser;

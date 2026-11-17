@@ -1,7 +1,6 @@
+import Button from '../ui/Button'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
-import './FilteredList.css'
 import FilterItem from './FilterItem'
 import { IFilteredField } from './RowItem'
 import Table, { ITableList, ITableQueries } from './Table'
@@ -96,7 +95,7 @@ function FilteredList({ name, userId, adminMode = false, queries, fields, filter
   }, [userId, createDefaultFilter])
 
   const onFilterChange = useCallback(
-    (f: string | null) => {
+    (f: Record<string, string> | null) => {
       const defaultFilter = createDefaultFilter(userId)
 
       if (f) {
@@ -122,14 +121,14 @@ function FilteredList({ name, userId, adminMode = false, queries, fields, filter
   }
 
   return (
-    <div className="base-filtered-list">
-      <section>
+    <div className="page">
+      <section className="space-y-6">
         <h1>{name}</h1>
-        <div className="row-head">
+        <div className="flex flex-wrap items-center gap-4">
           <FilterItem fields={fields} onChange={onFilterChange} />
           <div></div>
         </div>
-        <div className="row-table">
+        <div className="space-y-5">
           <Table name={name} filter={filter} queries={queries} adminMode={adminMode} fields={fields} onEdit={onEdit} getEditLink={getEditLink} />
           <Button onClick={onCreateNew}>Create New</Button>
         </div>

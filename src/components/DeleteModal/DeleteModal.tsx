@@ -1,56 +1,26 @@
 import React from 'react'
-import { Button, Modal } from 'react-bootstrap'
+import Dialog from '../ui/Dialog'
+import Button from '../ui/Button'
 
-export interface IDeleteModalParams {
+interface DeleteModalProps {
   show: boolean
   onHide: () => void
-  onDelete: (deleteObject: any) => void
+  onDelete: (item: { id?: string; name?: string }) => void
   modelName: string
-  deleteObject?: any
+  deleteObject?: { id?: string; name?: string } | null
   deleting?: boolean
 }
 
-export const DeleteModal: React.FC<IDeleteModalParams> = ({ show, onHide, onDelete, modelName, deleteObject, deleting }) => {
-  const onDeleteAction = () => {
-    if (!deleting) {
-      onDelete(deleteObject)
-    }
-  }
+export type IDeleteModalParams = DeleteModalProps
 
-  return (
-    <div>
-      <Modal show={show} onHide={onHide}>
-        <Modal.Header closeButton>
-          <div>
-            <Modal.Title>
-              Delete {'>>'} {deleteObject && deleteObject.name} {'<<'}
-            </Modal.Title>
-          </div>
-        </Modal.Header>
-
-        <Modal.Body>
-          {!deleting ? (
-            <p>
-              Are you sure, you want delete {modelName} item with name <b>'{deleteObject && deleteObject.name}'</b> and id <i>'{deleteObject && deleteObject.id}'</i>
-            </p>
-          ) : (
-            <p>
-              Deleting {modelName} item with name '{deleteObject && deleteObject.name}' and id '{deleteObject && deleteObject.id}' ...
-            </p>
-          )}
-        </Modal.Body>
-
-        <Modal.Footer>
-          <Button disabled={deleting} variant="danger" type="submit" onClick={onDeleteAction}>
-            Delete
-          </Button>
-          <Button disabled={deleting} variant="primary" onClick={onHide}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+function DeleteModal({ show, onHide, onDelete, modelName, deleteObject, deleting }: DeleteModalProps) {
+  return <Dialog open={show} title={`Delete ${deleteObject?.name || modelName}`} onClose={onHide} busy={deleting}>
+    <p className="text-sm text-slate-600">{deleting ? 'Deleting' : 'Are you sure you want to delete'} {modelName} {deleteObject?.name || deleteObject?.id}? This action cannot be undone.</p>
+    <div className="mt-6 flex justify-end gap-3">
+      <Button variant="secondary" disabled={deleting} onClick={onHide} data-autofocus>Cancel</Button>
+      <Button variant="danger" disabled={deleting || !deleteObject} onClick={() => { if (deleteObject && !deleting) onDelete(deleteObject) }}>{deleting ? 'Deleting…' : 'Delete'}</Button>
     </div>
-  )
+  </Dialog>
 }
 
 export default DeleteModal
