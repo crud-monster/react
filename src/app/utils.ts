@@ -1,14 +1,14 @@
 import axios from 'axios'
-export const getGraphqlMonsterClientAppRoot = () => process.env.REACT_APP_HOST?.substr(0,process.env.REACT_APP_HOST?.length - 8)
+export const getGraphqlMonsterClientAppRoot = () => import.meta.env.VITE_HOST?.substr(0,import.meta.env.VITE_HOST?.length - 8)
 
 export const isEmailValid = (email: string) => {
-    if(process.env.NODE_ENV === 'development') return true
+    if(import.meta.env.DEV) return true
 
     return new RegExp(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,15}/g).test(email)
 }
 
 export const isPasswordValid = (password: string) => {
-    //if(process.env.NODE_ENV === 'development') return true
+    //if(import.meta.env.DEV) return true
 
     const regularExpression = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/
     return regularExpression.test(password)
@@ -48,7 +48,7 @@ export const passwordStrong = (password: string):IPasswordStrongResult => {
     
     const value = capital + lower + number + special
 
-    const valid = (length > 7 && lower > 0 && number > 0) || process.env.NODE_ENV === 'development'
+    const valid = (length > 7 && lower > 0 && number > 0) || import.meta.env.DEV
     let percentage = (value+(length/4))
     if(percentage > 10) percentage = 10
 

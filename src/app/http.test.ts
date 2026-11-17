@@ -1,18 +1,18 @@
+import { vi } from 'vitest'
 import axios, { AxiosError } from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
 import { refreshToken } from './refreshToken'
 import { uploadFile } from './utils'
 
 const originalAdapter = axios.defaults.adapter
-const originalHost = process.env.REACT_APP_HOST
-const adapter = jest.fn()
+const adapter = vi.fn()
 
 beforeEach(() => {
   adapter.mockImplementation(async (config: InternalAxiosRequestConfig) => ({
     data: { uploaded: true }, status: 200, statusText: 'OK', headers: {}, config,
   }))
   axios.defaults.adapter = adapter
-  process.env.REACT_APP_HOST = 'https://api.example.test/graphql'
+  vi.stubEnv('VITE_HOST', 'https://api.example.test/graphql')
   localStorage.setItem('user.id', 'user-1')
   localStorage.setItem('user.token', 'access-token')
   localStorage.setItem('user.refreshToken', 'refresh-token')
@@ -20,8 +20,7 @@ beforeEach(() => {
 
 afterEach(() => {
   axios.defaults.adapter = originalAdapter
-  if (originalHost === undefined) delete process.env.REACT_APP_HOST
-  else process.env.REACT_APP_HOST = originalHost
+  vi.unstubAllEnvs()
   localStorage.clear()
 })
 
@@ -39,7 +38,7 @@ test('Axios serializes the refresh-token GraphQL request as JSON', async () => {
 
 test('Axios preserves FormData and bearer authorization for uploads', async () => {
   const file = new File(['example'], 'example.txt', { type: 'text/plain' })
-  const callback = jest.fn()
+  const callback = vi.fn()
 
   await expect(uploadFile()(file, callback)).resolves.toEqual({ uploaded: true })
   const [config] = adapter.mock.calls[0]
@@ -58,7 +57,7 @@ test('upload failures expose the backend message through the promise and callbac
     statusText: 'Forbidden', headers: {}, config: { headers: {} } as InternalAxiosRequestConfig,
   }
   adapter.mockRejectedValueOnce(error)
-  const callback = jest.fn()
+  const callback = vi.fn()
 
   await expect(uploadFile()(new File(['example'], 'example.txt'), callback)).rejects.toThrow('Upload denied')
   expect(callback).toHaveBeenCalledWith(expect.objectContaining({ message: 'Upload denied' }), null)

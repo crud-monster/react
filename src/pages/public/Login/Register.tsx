@@ -1,5 +1,4 @@
 import { useMutation } from "@apollo/client";
-import { loader } from 'graphql.macro';
 import React, { useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
 import { Link, useHistory } from 'react-router-dom';
@@ -8,10 +7,10 @@ import { changeState, login, UserToken } from "../../../app/reducers/userSlice";
 import { isEmailValid, passwordStrong } from "../../../app/utils";
 import PasswordComponent from "./PasswordComponent";
 
-export const REGISTER_MUTATION = loader('./graphql/register.gql')
+import REGISTER_MUTATION from './graphql/register.gql';
 
 export const Register: React.FC = () => {
-  const defaultPath = process.env.REACT_APP_DEFAULT_USER_PATH || '/user/dashboard'
+  const defaultPath = import.meta.env.VITE_DEFAULT_USER_PATH || '/user/dashboard'
 
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
@@ -164,3 +163,5 @@ export const Register: React.FC = () => {
 };
 
 export default Register;
+
+export { REGISTER_MUTATION };

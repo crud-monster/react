@@ -90,7 +90,7 @@ const authLink = setContext((_, { headers }) => {
 })
 
 const httpLink = createHttpLink({
-  uri: process.env.REACT_APP_HOST,
+  uri: import.meta.env.VITE_HOST,
 })
 
 // @ts-ignore

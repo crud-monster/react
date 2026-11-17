@@ -1,10 +1,9 @@
-import { loader } from "graphql.macro";
 import React from "react";
 import FilteredList from "../../../components/List/FilteredList";
 
-const USER_LIST_QUERY = loader('./graphql/query-all-user-role-admin.gql')
-const ADMIN_LIST_QUERY = loader('./graphql/query-all-user-role-admin.gql')
-const DELETE_MUTATION = loader('./graphql/mutation-remove-user-role.gql')
+import USER_LIST_QUERY from './graphql/query-all-user-role-admin.gql';
+import ADMIN_LIST_QUERY from './graphql/query-all-user-role-admin.gql';
+import DELETE_MUTATION from './graphql/mutation-remove-user-role.gql';
 
 export const UserRoleList: React.FC<{ userId?: string, adminMode?: boolean }> = ({ userId, adminMode = false }) => {
   return (

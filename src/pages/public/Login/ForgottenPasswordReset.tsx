@@ -1,5 +1,4 @@
 import { useMutation } from "@apollo/client";
-import { loader } from "graphql.macro";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
@@ -9,8 +8,8 @@ import { changeState, login } from "../../../app/reducers/userSlice";
 import { isPasswordValid, passwordStrong } from "../../../app/utils";
 import PasswordComponent from "./PasswordComponent";
 
-export const FORGOTTEN_PASSWORD_CHECK_MUTATION = loader('./graphql/forgotten-password-check.gql')
-export const FORGOTTEN_PASSWORD_RESET_MUTATION = loader('./graphql/forgotten-password-reset.gql')
+import FORGOTTEN_PASSWORD_CHECK_MUTATION from './graphql/forgotten-password-check.gql';
+import FORGOTTEN_PASSWORD_RESET_MUTATION from './graphql/forgotten-password-reset.gql';
 
 
 export const ForgotenPasswordReset: React.FC<any> = ({ match }) => {
@@ -160,3 +159,5 @@ export const ForgotenPasswordReset: React.FC<any> = ({ match }) => {
 };
 
 export default ForgotenPasswordReset;
+
+export { FORGOTTEN_PASSWORD_CHECK_MUTATION, FORGOTTEN_PASSWORD_RESET_MUTATION };

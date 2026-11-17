@@ -2,13 +2,12 @@ import React from "react";
 import gql from 'graphql-tag';
 import FilteredList from "../../../components/List/FilteredList";
 import ConnectBase from "../../../components/List/ConnectBase";
-import { loader } from "graphql.macro";
 
-const QUERY_ALL_USERS_ADMIN = loader('./graphql/query-all-user-admin.gql')
-const USER_ROLE_QUERY = loader('./graphql/query-all-user-role.gql')
-const MUTATION_ADD_USER_ROLE_TO_USER = loader('./graphql/mutation-add-user-role-to-user.gql')
-const MUTATION_REMOVE_USER_ROLE_FROM_USER = loader('./graphql/mutation-remove-user-role-from-user.gql')
-const MUTATION_REMOVE_USER = loader('./graphql/mutation-remove-user.gql')
+import QUERY_ALL_USERS_ADMIN from './graphql/query-all-user-admin.gql';
+import USER_ROLE_QUERY from './graphql/query-all-user-role.gql';
+import MUTATION_ADD_USER_ROLE_TO_USER from './graphql/mutation-add-user-role-to-user.gql';
+import MUTATION_REMOVE_USER_ROLE_FROM_USER from './graphql/mutation-remove-user-role-from-user.gql';
+import MUTATION_REMOVE_USER from './graphql/mutation-remove-user.gql';
 const USER_LIST_QUERY = gql`
 {allUser{id}}`;
 
