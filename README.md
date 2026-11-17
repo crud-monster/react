@@ -30,7 +30,7 @@ For deployment under a subpath, configure both `PUBLIC_URL` and `REACT_APP_BASEN
 
 ## Migration status
 
-This stage retains React 17 and prepares the toolchain with CRA 5 and TypeScript 4.9. React 18 and migration to Vite will be delivered separately.
+This stage uses React 18 with the createRoot API and Strict Mode, CRA 5 and TypeScript 4.9. Migration to Vite will be delivered separately.
 
 Existing GraphQL operations still target the original backend contract, including `_v1` operations. Renaming to CRUD Monster does not migrate the backend. Legacy documentation links in the sample UI refer to that API.
 
