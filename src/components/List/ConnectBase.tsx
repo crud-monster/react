@@ -1,35 +1,32 @@
-import { useMutation, useQuery } from "@apollo/client";
-import React, { useState } from "react";
+import { useMutation, useQuery } from '@apollo/client/react';
+import React, { useEffect, useState } from "react";
 import { Dropdown, DropdownButton, Form } from "react-bootstrap";
 
-export const ConnectBase: React.FC<{ value: any, names?: any, gql: any, item: any }> = ({ value, names, gql, item }) => {
+interface ConnectBaseProps {
+  value: any
+  names?: string[]
+  gql: any
+  item: any
+}
+
+function ConnectBase({ value, names = [], gql, item }: ConnectBaseProps) {
   const element = value
-  const name = names.length > 1 && names[1]
+  const name = names[1] || 'name'
   const elementTitle = element.push && element.reduce && names.length > 1 ? (element as any[]).reduce((p, e) => p + `, ${e[name]}`, '').substr(2) : element
 
   const [title, setTitle] = useState(elementTitle)
   const [data, setData] = useState<any[]>([])
 
-  useQuery(gql.QUERY, {
-    onCompleted: (iraw) => {
+  const { data: queryData } = useQuery<Record<string, any[]>>(gql.QUERY)
+  useEffect(() => {
+    const raw = queryData && Object.values(queryData)[0]
+    setData((raw || []).map((r: any) => ({
+      id: r.id,
+      checked: String(elementTitle).includes(String(r[name])),
+      label: r[name],
+    })))
+  }, [queryData, elementTitle, name])
 
-      const dataFields = Object.getOwnPropertyNames(iraw)
-      if (dataFields.length > 0 && iraw[dataFields[0]].length > 0) {
-        const raw = iraw[dataFields[0]]
-
-        const final = raw.map((r: any) => ({
-          id: r.id,
-          checked: title.indexOf(r[name]) !== -1,
-          label: r[name]
-        }))
-
-        setData(final)
-      } else {
-        setData([])
-      }
-
-    },
-  });
 
   const [addMutation] = useMutation(gql.ADD, { errorPolicy: "none" })
 

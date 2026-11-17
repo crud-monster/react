@@ -1,6 +1,7 @@
+import type { UserToken } from '../../../app/reducers/userSlice';
 import React, { useState } from "react";
 import gql from "graphql-tag";
-import { useMutation } from "@apollo/client";
+import { useMutation } from '@apollo/client/react';
 import { Modal, Form, Alert, Button } from "react-bootstrap";
 import { Link, useHistory } from 'react-router-dom';
 import PasswordComponent from "./PasswordComponent";
@@ -56,7 +57,7 @@ export const UserInfo: React.FC = () => {
   const userEmail = localStorage.getItem('user.email') || ''
   const userVerified = localStorage.getItem('user.verified') == 'true'
 
-  const [changePassword, { loading, data, error }] = useMutation(CHANGE_PASSWORD_MUTATION, {
+  const [changePassword, { loading, data, error }] = useMutation<{ changePassword_v1: UserToken }>(CHANGE_PASSWORD_MUTATION, {
     errorPolicy: "none",
   });
 
@@ -89,6 +90,7 @@ export const UserInfo: React.FC = () => {
 
     try {
       const { data } = await changePassword({ variables: { userId, oldPassword, newPassword } })
+      if (!data) throw new Error("Missing mutation response")
       dispatch(login(data.changePassword_v1))
       setShowPasswordChanged(true)
       

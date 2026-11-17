@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation } from '@apollo/client/react';
 import React, { useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
 import { Link, useHistory } from 'react-router-dom';
@@ -19,7 +19,7 @@ export const Register: React.FC = () => {
   const history = useHistory()
   const dispatch = useAppDispatch();
 
-  const [registerMutation, { loading, data }] = useMutation(REGISTER_MUTATION, {
+  const [registerMutation, { loading, data }] = useMutation<{ register_v1: UserToken }>(REGISTER_MUTATION, {
     errorPolicy: "none",
   });
 
@@ -42,6 +42,7 @@ export const Register: React.FC = () => {
     try {
       dispatch(changeState('processing'))
       const { data } = await registerMutation({ variables: { email, pass } })
+      if (!data) throw new Error("Missing mutation response")
       const userToken = data.register_v1 as UserToken
 
       dispatch(login(userToken))

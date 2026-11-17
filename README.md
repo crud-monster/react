@@ -37,6 +37,8 @@ When migrating a local environment file, rename `REACT_APP_HOST` to `VITE_HOST`,
 
 Axios uses the 1.x release line. Redux Toolkit 2.2.x and React Redux 9.1.x are retained from the preceding dependency update; upgrading them further is a separate change.
 
+Apollo Client 4 uses the React entry point `@apollo/client/react` and GraphQL 16. Expired sessions share one token refresh across concurrent requests. A failed refresh clears the session and rejects waiting requests. Network retries are limited to three attempts for queries; mutations and HTTP 4xx failures are not automatically retried.
+
 Existing GraphQL operations still target the original backend contract, including `_v1` operations. Renaming to CRUD Monster does not migrate the backend. Legacy documentation links in the sample UI refer to that API.
 
 ## Included features

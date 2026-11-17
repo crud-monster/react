@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import React, { useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import { Link, useHistory } from 'react-router-dom';

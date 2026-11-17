@@ -1,5 +1,6 @@
-import { useMutation, useQuery } from '@apollo/client'
-import React, { useCallback, useState } from 'react'
+import type { DocumentNode } from 'graphql'
+import { useMutation, useQuery } from '@apollo/client/react';
+import React, { useCallback, useEffect, useState } from 'react'
 import Loading from '../Loading/Loading'
 import Unauthorized from '../Unauthorized/Unauthorized'
 
@@ -8,7 +9,19 @@ export const getDataFromRaw = (rawData: any) => {
   return rawData[rawName]
 }
 
-export const Editor = ({ name, form, id, renameError, onUpdated, updateCache, query, children }: any) => {
+interface EditorProps {
+  name: string
+  id?: string
+  fields?: string[]
+  form?: unknown
+  renameError?: (error: string) => string
+  onUpdated?: (data: Record<string, unknown>) => void
+  updateCache?: useMutation.Options<Record<string, unknown>>['update']
+  query: { QUERY: DocumentNode; CREATE_MUTATION: DocumentNode; UPDATE_MUTATION: DocumentNode }
+  children: (data: Record<string, unknown>, submit: (data: Record<string, unknown>) => void, errors: string[] | null) => React.ReactNode
+}
+
+function Editor({ name, id, renameError, onUpdated, updateCache, query, children }: EditorProps) {
   const [localId, setLocalId] = useState(id !== 'create' ? id : undefined)
   const [unauthorized, setUnauthorized] = useState(false)
   const [errors, setErrors] = useState<string[] | null>([])
@@ -23,20 +36,6 @@ export const Editor = ({ name, form, id, renameError, onUpdated, updateCache, qu
     setErrors(incomingErrors)
   }
 
-  const updateDataFromLoaded = (loadedDataRaw: any) => {
-    if (!loadedDataRaw) {
-      return
-    }
-
-    const loadedData = getDataFromRaw(loadedDataRaw)
-
-    if (loadedData) {
-      setStoredData({ ...loadedData })
-    } else {
-      setUnauthorized(true)
-    }
-  }
-
   const onCompleted = (raw: any) => {
     const data = getDataFromRaw(raw)
     setLocalId(data.id)
@@ -45,27 +44,31 @@ export const Editor = ({ name, form, id, renameError, onUpdated, updateCache, qu
   }
 
   const skipLoading = !localId
-  const { loading } = useQuery(query.QUERY, {
+  const { loading, data: loadedDataRaw, error: loadError } = useQuery<Record<string, unknown>>(query.QUERY, {
     variables: { id: localId },
     skip: skipLoading,
-    onCompleted: (loadedDataRaw: any) => {
-      updateDataFromLoaded(loadedDataRaw)
-    },
-    onError: (e) => {
-      if (e.message === 'GraphQL error: Unauhorized') {
-        setUnauthorized(true)
-      }
-    },
   })
+  useEffect(() => {
+    if (!loadedDataRaw) return
+    const loadedData = getDataFromRaw(loadedDataRaw)
+    if (loadedData) setStoredData({ ...loadedData })
+    else setUnauthorized(true)
+  }, [loadedDataRaw])
+  useEffect(() => {
+    if (loadError) {
+      if (/unau?thorized|unauhorized/i.test(loadError.message)) setUnauthorized(true)
+      else setErrors([loadError.message])
+    }
+  }, [loadError])
 
-  const [createProjectMutation] = useMutation(query.CREATE_MUTATION, {
+  const [createProjectMutation] = useMutation<Record<string, unknown>>(query.CREATE_MUTATION, {
     errorPolicy: 'none',
     onCompleted: onCompleted,
     update: updateCache,
     onError: handleError,
   })
 
-  const [updateProjectMutation] = useMutation(query.UPDATE_MUTATION, {
+  const [updateProjectMutation] = useMutation<Record<string, unknown>>(query.UPDATE_MUTATION, {
     errorPolicy: 'none',
     onCompleted: onCompleted,
     update: updateCache,
