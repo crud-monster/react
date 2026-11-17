@@ -3,7 +3,14 @@ import { useSelector } from 'react-redux'
 import { Redirect, Route } from 'react-router-dom'
 import { selectUser } from '../../app/reducers/userSlice'
 
-export const ProtectRoute: React.FC<{ path: string, role?: string, exact?: boolean }> = ({ path, role, exact, children }) => {
+interface ProtectedRouteProps {
+    path: string
+    role?: string
+    exact?: boolean
+    children?: React.ReactNode
+}
+
+function ProtectedRoute({ path, role, exact, children }: ProtectedRouteProps) {
     const user = useSelector(selectUser)
 
     if (role && !user?.roles.find(r => r.name === role)) {
@@ -17,4 +24,4 @@ export const ProtectRoute: React.FC<{ path: string, role?: string, exact?: boole
     return (<Route path={path} exact={exact} children={children} />)
 }
 
-export default ProtectRoute
+export default ProtectedRoute
