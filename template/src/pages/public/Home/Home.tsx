@@ -6,7 +6,7 @@ function Home() {
     <div className="App">
       <header className="App-header">
 
-        <h1>GraphQL Monster TypeScript Template</h1>
+        <h1>CRUD Monster React</h1>
         <p>
           This page is public and accesible for all visitors / users
           Edit <code>src/pages/public/Home/Home.tsx</code> and save to reload.
