@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
     plugins: [graphql(), react()],
     build: { target: 'es2020' },
     test: {
+      include: ['src/**/*.test.{ts,tsx}'],
       environment: 'jsdom',
       globals: true,
       setupFiles: ['./src/setupTests.ts'],

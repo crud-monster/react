@@ -26,3 +26,6 @@ yarn-error.log*
 .env
 
 /dist
+
+/packages/create-crud-monster/template/
+*.tgz

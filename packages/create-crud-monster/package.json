@@ -1,0 +1,36 @@
+{
+  "name": "create-crud-monster",
+  "version": "0.1.0",
+  "description": "Create a CRUD Monster React application with authentication, roles and CRUD administration.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
+  },
+  "bin": {
+    "create-crud-monster": "bin/create-crud-monster.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "template",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crud-monster/react.git",
+    "directory": "packages/create-crud-monster"
+  },
+  "bugs": {
+    "url": "https://github.com/crud-monster/react/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepack": "node scripts/prepare-template.mjs",
+    "pretest": "node scripts/prepare-template.mjs",
+    "test": "node --test test/*.test.js"
+  }
+}
