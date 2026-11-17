@@ -1,10 +1,9 @@
 import { useMutation } from "@apollo/client";
-import { loader } from "graphql.macro";
 import React, { useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
 import { isEmailValid } from "../../../app/utils";
 
-const FORGOTTEN_PASSWORD_REQUEST_MUTATION = loader('./graphql/forgotten-password-request.gql');
+import FORGOTTEN_PASSWORD_REQUEST_MUTATION from './graphql/forgotten-password-request.gql';
 
 export const ForgottenPassword: React.FC = () => {
   const [email, setEmail] = useState('');

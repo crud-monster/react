@@ -1,5 +1,4 @@
 import { useMutation } from '@apollo/client';
-import { loader } from 'graphql.macro';
 import React, { useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import { Link, useHistory } from 'react-router-dom';
@@ -8,7 +7,7 @@ import { changeState, login, UserToken } from '../../../app/reducers/userSlice';
 import { getGraphqlMonsterClientAppRoot } from '../../../app/utils';
 import { isEmailValid } from './utils';
 
-export const LOGIN_QL = loader('./graphql/login.gql')
+import LOGIN_QL from './graphql/login.gql';
 
 export const Login: React.FC = () => {
     const [email, setEmail] = useState(localStorage.getItem('user.email') || '')
@@ -21,7 +20,7 @@ export const Login: React.FC = () => {
     const query = new URLSearchParams(history.location.search)
     const path = query.get('path')
     const role = query.get('role')
-    const defaultPath = process.env.REACT_APP_DEFAULT_USER_PATH || '/user/dashboard'
+    const defaultPath = import.meta.env.VITE_DEFAULT_USER_PATH || '/user/dashboard'
 
     const dispatch = useAppDispatch();
     const [loginMutation, { loading }] = useMutation(LOGIN_QL, { errorPolicy: 'none' });
@@ -131,3 +130,4 @@ export const Login: React.FC = () => {
 }
 
 export default Login
+export { LOGIN_QL };

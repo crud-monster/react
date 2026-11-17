@@ -1,4 +1,3 @@
-import { loader } from "graphql.macro";
 import React from "react";
 import { Button, Form } from "react-bootstrap";
 import { useForm } from 'react-hook-form';
@@ -6,9 +5,9 @@ import { useParams } from "react-router-dom";
 import Control from "../../../components/Editor/Control";
 import Editor from "../../../components/Editor/Editor";
 
-const CREATE_MUTATION = loader('./graphql/mutation-create-user-role.gql')
-const UPDATE_MUTATION = loader('./graphql//mutation-update-user-role.gql')
-const QUERY = loader('./graphql/query-user-role.gql')
+import CREATE_MUTATION from './graphql/mutation-create-user-role.gql';
+import UPDATE_MUTATION from './graphql/mutation-update-user-role.gql';
+import QUERY from './graphql/query-user-role.gql';
 
 const UserRoleForm = ({ storedData, onSubmit, userRoleId, graphQlError }: any) => {
   const reactForm = useForm()
