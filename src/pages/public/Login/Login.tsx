@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch } from '../../../app/hooks';
 import { changeState, login, UserToken } from '../../../app/reducers/userSlice';
 import { getGraphqlMonsterClientAppRoot } from '../../../app/utils';
@@ -9,16 +9,17 @@ import { isEmailValid } from './utils';
 
 import LOGIN_QL from './graphql/login.gql';
 
-export const Login: React.FC = () => {
+function Login() {
     const [email, setEmail] = useState(localStorage.getItem('user.email') || '')
     const [pass, setPass] = useState('')
 
     const [invalidEmail, setInvalidEmail] = useState(false)
     const [invalidPass, setInvalidPass] = useState(false)
 
-    const history = useHistory()
-    const query = new URLSearchParams(history.location.search)
-    const path = query.get('path')
+    const navigate = useNavigate()
+    const query = new URLSearchParams(useLocation().search)
+    const requestedPath = query.get('path')
+    const path = requestedPath?.startsWith('/') && !requestedPath.startsWith('//') && !requestedPath.includes('\\') ? requestedPath : null
     const role = query.get('role')
     const defaultPath = import.meta.env.VITE_DEFAULT_USER_PATH || '/user/dashboard'
 
@@ -38,7 +39,7 @@ export const Login: React.FC = () => {
             dispatch(login(userToken))
             // go to path in case user want to reach some page before login
             // or go to default path
-            history.replace(path || defaultPath)
+            navigate(path || defaultPath, { replace: true })
         } catch (e) {
             setInvalidEmail(true)
             setInvalidPass(true)
@@ -59,7 +60,7 @@ export const Login: React.FC = () => {
     }
 
     const onBackClick = () => {
-        history.goBack()
+        navigate(-1)
     }
 
     return (<>

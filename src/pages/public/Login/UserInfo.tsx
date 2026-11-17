@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
 import { Modal, Form, Alert, Button } from "react-bootstrap";
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PasswordComponent from "./PasswordComponent";
 import { passwordStrong } from "../../../app/utils";
 import { useDispatch } from "react-redux";
@@ -31,7 +31,7 @@ const VERIFY_EMAIL_RESEND_MUTATION = gql`
   }
 `;
 
-export const UserInfo: React.FC = () => {
+function UserInfo() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordCopy, setNewPasswordCopy] = useState("");
@@ -39,7 +39,7 @@ export const UserInfo: React.FC = () => {
   const [invalidPasswordCopy, setInvalidNewPasswordCopy] = useState(false);
 
   const [showVerifyEmailSended, setShowVerifyEmailSended] = useState(false);
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
 
   

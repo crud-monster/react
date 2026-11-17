@@ -1,27 +1,22 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Redirect, Route } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { selectUser } from '../../app/reducers/userSlice'
 
 interface ProtectedRouteProps {
-    path: string
-    role?: string
-    exact?: boolean
-    children?: React.ReactNode
+  role?: string
+  children: React.ReactNode
 }
 
-function ProtectedRoute({ path, role, exact, children }: ProtectedRouteProps) {
-    const user = useSelector(selectUser)
-
-    if (role && !user?.roles.find(r => r.name === role)) {
-        return (<Redirect to={`/login?path=${path}&role=${role}`} />)
-    }
-
-    if (!user?.token) {
-        return (<Redirect to={`/login?path=${path}`} />)
-    }
-
-    return (<Route path={path} exact={exact} children={children} />)
+function ProtectedRoute({ role, children }: ProtectedRouteProps) {
+  const user = useSelector(selectUser)
+  const location = useLocation()
+  if (!user?.token || (role && !user.roles?.some(item => item.name === role))) {
+    const query = new URLSearchParams({ path: location.pathname + location.search + location.hash })
+    if (role) query.set('role', role)
+    return <Navigate to={`/login?${query.toString()}`} replace />
+  }
+  return <>{children}</>
 }
 
 export default ProtectedRoute
