@@ -1,5 +1,4 @@
 import React from "react";
-import './Row.css';
 
 
 export interface IFilteredFieldDesc {
@@ -32,8 +31,8 @@ export const ListRowItem: React.FC<IListRowParams> = ({ item, field }) => {
   }
 
   if ((field as IFilteredFieldDesc).component) {
-    const component = (field as IFilteredFieldDesc).component
-    return (<>{component && component({ value: element, names, item })}</>)
+    const Component = (field as IFilteredFieldDesc).component
+    return Component ? <Component value={element} names={names} item={item} /> : null
   }
 
   if (element.substr && element.length > 50) {

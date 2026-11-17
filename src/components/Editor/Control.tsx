@@ -1,36 +1,29 @@
 import React, { useEffect } from 'react'
-import { Form, FormControl } from 'react-bootstrap'
+import type { FieldValues, FormState, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 
-export const Control = ({ name, storedData, label, required, register, placeholder, formState, setValue }: any) => {
-  const { errors } = formState
-  const error = (errors && errors[name])
+interface ControlProps {
+  name: string
+  storedData?: Record<string, unknown>
+  label: string
+  required?: boolean
+  register: UseFormRegister<FieldValues>
+  placeholder?: string
+  formState: FormState<FieldValues>
+  setValue: UseFormSetValue<FieldValues>
+}
 
+function Control({ name, storedData, label, required, register, placeholder, formState, setValue }: ControlProps) {
+  const error = formState.errors[name]
+  const id = `form-${name}`
   useEffect(() => {
-    if (storedData && storedData[name]) setValue(name, storedData[name])
+    if (storedData && storedData[name] !== undefined) setValue(name, storedData[name])
   }, [storedData, setValue, name])
-
-  return (
-    <React.Fragment >
-      <Form.Group controlId={`form-${name}`}>
-        <Form.Label>{label} {required && '*'}</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder={placeholder}
-          {...register(name as any, { required })}
-
-          isInvalid={error}
-        /* isValid={dirty && !error} */
-        />
-
-        <FormControl.Feedback type="valid">
-          Perfect!
-        </FormControl.Feedback>
-        <Form.Control.Feedback type="invalid">
-          Please provide a valid {label}.
-        </Form.Control.Feedback>
-      </Form.Group>
-    </React.Fragment>
-  )
+  return <div className="mb-5">
+    <label className="field-label" htmlFor={id}>{label}{required && ' *'}</label>
+    <input className="field-input" id={id} type="text" placeholder={placeholder} {...register(name, { required })}
+      aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined} />
+    {error && <p className="mt-2 text-sm text-red-700" id={`${id}-error`}>Please provide a valid {label}.</p>}
+  </div>
 }
 
 export default Control

@@ -1,6 +1,9 @@
+import AuthLayout from '../../../components/ui/AuthLayout';
+import Field from '../../../components/ui/Field';
+import Button from '../../../components/ui/Button';
+import Alert from '../../../components/ui/Alert';
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
-import { Alert, Button, Form } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch } from '../../../app/hooks';
 import { changeState, login, UserToken } from '../../../app/reducers/userSlice';
@@ -63,71 +66,20 @@ function Login() {
         navigate(-1)
     }
 
-    return (<>
-        <section id="subheader" data-bgimage="url(images/background/5.png) bottom">
-            <div className="center-y relative text-center" data-scroll-speed="4">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-md-8 offset-md-2">
-                            <form action='blank.php' className="row" id='form_subscribe' method="post" name="myForm">
-                                <div className="col-md-12 text-center">
-                                    <h1>User Login</h1>
-                                    <p>We was missed you already</p>
-                                    {role && <Alert variant={'warning'}>You trying to reach part what is under registered user with <b>{role}</b> role protection. <Link to={'/'} onClick={onBackClick}>Please take me back</Link></Alert>}
-                                    {(!role && path) && <Alert variant={'warning'}>You trying to reach part what is under registered user protection. <Link to={'/'} onClick={onBackClick}>Please take me back</Link></Alert>}
-                                </div>
-                                <div className="clearfix"></div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section className="no-top" data-bgimage="url(images/background/3.png) top">
-            <div className="container">
-                <div className="row">
-                    <div className="col-md-6 offset-md-3">
-                        <Form name="contactForm" id='contact_form' className="form-border" >
-                            {!invalidPass && <h3>Login to your account</h3>}
-                            {invalidPass && <Alert variant={'danger'}>Email or password is not valid. Did You <Link to="/forgotten-password">forgotten your password</Link>?</Alert>}
-                            {invalidEmail && (<Alert variant={"danger"}>Email is not in good shape...</Alert>)}
-                            <Form.Group controlId="formBasicEmail">
-                                <Form.Label>Email address</Form.Label>
-                                <Form.Control type="text" placeholder="Enter email" onChange={onEmailChange} value={email} isInvalid={invalidEmail} />
-                            </Form.Group>
-
-
-                            <Form.Group controlId="formBasicPassword">
-                                <Form.Label>Password</Form.Label>
-                                <Form.Control type='password' onChange={onPasswordChange} value={pass} isInvalid={invalidPass} />
-                                <Form.Text className="text-muted">
-                                    We'll never share your password with anyone else.
-                                </Form.Text>
-                            </Form.Group>
-
-                            <div id='submit' className="pull-left">
-                                {!loading && <Button className="btn-round" variant="primary" onClick={() => onLogin()}>Login</Button>}
-                                {loading && <Button className="btn-round" variant="primary" disabled>Loading...</Button>}
-                                <div className="clearfix"></div>
-
-                                <div className="spacer-single"></div>
-
-                                <ul className="list s3">
-                                    <li>Or login with:</li>
-                                    <li><a href={`${getGraphqlMonsterClientAppRoot()}/auth/github`}>GitHub</a></li>
-                                    <li><a href={`${getGraphqlMonsterClientAppRoot()}/auth/facebook`}>Facebook</a></li>
-                                    <li><a href={`${getGraphqlMonsterClientAppRoot()}/auth/google`}>Google</a></li>
-                                </ul>
-
-                            </div>
-
-                        </Form>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </>)
+  return <AuthLayout title="User Login">
+    {(role || path) && <Alert variant="warning">Please sign in{role ? ` with the ${role} role` : ''} to continue. <Link to="/">Go home</Link>.</Alert>}
+    <form className="mt-5 space-y-5" onSubmit={event => { event.preventDefault(); void onLogin() }}>
+      {invalidPass && <Alert variant="danger">Email or password is not valid. <Link to="/forgotten-password">Reset your password</Link>.</Alert>}
+      {invalidEmail && !invalidPass && <Alert variant="danger">Enter a valid email address.</Alert>}
+      <Field id="email" label="Email address"><input className="field-input" id="email" type="email" autoComplete="email" required value={email} onChange={onEmailChange} aria-invalid={invalidEmail} /></Field>
+      <Field id="password" label="Password"><input className="field-input" id="password" type="password" autoComplete="current-password" required value={pass} onChange={onPasswordChange} aria-invalid={invalidPass} /></Field>
+      <Button type="submit" disabled={loading}>{loading ? 'Signing in…' : 'Login'}</Button>
+      <p className="text-sm"><Link to="/forgotten-password">Forgot your password?</Link></p>
+      <div className="border-t border-slate-200 pt-4"><p className="mb-3 text-sm text-slate-500">Or continue with</p><div className="flex flex-wrap gap-4">
+        {['github', 'facebook', 'google'].map(provider => <a key={provider} href={`${getGraphqlMonsterClientAppRoot()}/auth/${provider}`}>{provider.charAt(0).toUpperCase() + provider.slice(1)}</a>)}
+      </div></div>
+    </form>
+  </AuthLayout>
 }
 
 export default Login

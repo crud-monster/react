@@ -1,8 +1,8 @@
-import React from "react";
-import { Alert } from 'react-bootstrap'
+import React from 'react'
+import Alert from '../ui/Alert'
 
-export const Unauthorized = ({where = ''}) => {
-    return (<Alert variant={'danger'}>{`Unauthorized ${where} access`}</Alert>)
+interface UnauthorizedProps { where?: string }
+function Unauthorized({ where = '' }: UnauthorizedProps) {
+  return <div className="page"><Alert variant="danger">Unauthorized {where} access.</Alert></div>
 }
-
 export default Unauthorized

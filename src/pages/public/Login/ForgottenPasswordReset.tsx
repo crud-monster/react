@@ -1,6 +1,9 @@
+import AuthLayout from '../../../components/ui/AuthLayout';
+import Field from '../../../components/ui/Field';
+import Button from '../../../components/ui/Button';
+import Alert from '../../../components/ui/Alert';
 import { useMutation } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Form } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { changeState, login } from "../../../app/reducers/userSlice";
@@ -88,74 +91,17 @@ function ForgottenPasswordReset() {
     }
   };
 
-  if (loadingForgottenPasswordCheck) {
-    return (<Alert variant={"success"}>Checking token</Alert>)
-  } else if (dataForgottenPasswordCheck && dataForgottenPasswordCheck.check && dataForgottenPasswordCheck.check.status === 'valid') {
-    return (<>
-      <section id="subheader" data-bgimage="url(images/background/5.png) bottom">
-        <div className="center-y relative text-center" data-scroll-speed="4">
-          <div className="container">
-            <div className="row">
-              <div className="col-md-8 offset-md-2">
-                <form action='blank.php' className="row" id='form_subscribe' method="post" name="myForm">
-                  <div className="col-md-12 text-center">
-                    <h1>User Password Reset</h1>
-                    <p>You will be back soon</p>
-                  </div>
-                  <div className="clearfix"></div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="no-top" data-bgimage="url(images/background/3.png) top">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-6 offset-md-3">
-              <form name="contactForm" id='contact_form' className="form-border" method="post" action='blank.php'>
-
-
-                <Form>
-                  {/* {invalidPass && (<Alert variant={"danger"}>The password have to contain capital letter,lower letter, a number and must be 6-16 characters long</Alert>)}   */}
-                  {invalidCopy && (<Alert variant={"danger"}>The retyped password is not the same</Alert>)}
-                  <PasswordComponent password={password} onPasswordChange={onPasswordChange} strongPassword={strong} />
-
-                  <Form.Group controlId="formBasicPassword">
-                    <Form.Label>Re-Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      placeholder="Retype Password"
-                      onChange={onCopyChange}
-                      value={copy}
-                      isInvalid={invalidCopy}
-                    />
-                  </Form.Group>
-                </Form>
-
-                <div id='submit' className="pull-left">
-                  {!loading && <Button className="btn-round" variant="primary" onClick={() => onReset()} disabled={!strong.valid}>Reset password</Button>}
-                  {loading && <Button className="btn-round" variant="primary" disabled>Loading...</Button>}
-
-                  <div className="clearfix"></div>
-
-
-                </div>
-
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
-    );
-  } else {
-    return (<Alert variant={"danger"}>The <b>{token}</b> is not valid or already used</Alert>)
-  }
-
-
-};
+  if (loadingForgottenPasswordCheck) return <AuthLayout title="Reset password"><p role="status">Checking token…</p></AuthLayout>
+  if (dataForgottenPasswordCheck?.check?.status !== 'valid') return <AuthLayout title="Reset password"><Alert variant="danger">The password reset link is invalid or has already been used.</Alert></AuthLayout>
+  return <AuthLayout title="User Password Reset">
+    <form className="space-y-5" onSubmit={event => { event.preventDefault(); void onReset() }}>
+      {invalidCopy && <Alert variant="danger">The passwords do not match.</Alert>}
+      <PasswordComponent password={password} onPasswordChange={onPasswordChange} strongPassword={strong} />
+      <Field id="repeat-password" label="Repeat password"><input className="field-input" id="repeat-password" type="password" autoComplete="new-password" required value={copy} onChange={onCopyChange} aria-invalid={invalidCopy} /></Field>
+      <Button type="submit" disabled={loading || !strong.valid}>{loading ? 'Resetting…' : 'Reset password'}</Button>
+    </form>
+  </AuthLayout>
+}
 
 export default ForgottenPasswordReset;
 

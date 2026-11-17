@@ -1,26 +1,20 @@
 import React from 'react'
-import { Form, ProgressBar } from 'react-bootstrap'
-import { IPasswordStrongResult } from '../../../app/utils'
+import type { IPasswordStrongResult } from '../../../app/utils'
+import Field from '../../../components/ui/Field'
 
-export interface IPasswordComponent {
-    strongPassword: IPasswordStrongResult,
-    password: string
-    onPasswordChange: (arg:any) => void
+interface PasswordComponentProps {
+  strongPassword: IPasswordStrongResult
+  password: string
+  onPasswordChange: React.ChangeEventHandler<HTMLInputElement>
 }
 
-export const PasswordComponent:React.FC<IPasswordComponent> = ({onPasswordChange, password, strongPassword}) => (
-    <Form.Group controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-            type="password"
-            placeholder="Password"
-            onChange={onPasswordChange}
-            value={password}
-            isInvalid={!strongPassword.valid}
-        />
-        <Form.Text>Make sure it's at least 15 characters OR at least 8 characters including a number and a lowercase letter</Form.Text>
-        <ProgressBar now={strongPassword.strong} label={strongPassword.name} variant={strongPassword.variant}/>
-    </Form.Group>
-)
+function PasswordComponent({ onPasswordChange, password, strongPassword }: PasswordComponentProps) {
+  return <Field id="password" label="Password" help="Use at least 15 characters, or at least 8 including a number and a lowercase letter.">
+    <input className="field-input" id="password" type="password" autoComplete="new-password" required value={password} onChange={onPasswordChange}
+      aria-invalid={password.length > 0 && !strongPassword.valid} aria-describedby="password-help password-strength" />
+    <progress className="mt-3 h-2 w-full accent-indigo-600" max={100} value={strongPassword.strong} aria-label="Password strength" />
+    <span className="field-help" id="password-strength">{strongPassword.name || 'Enter a password'}</span>
+  </Field>
+}
 
 export default PasswordComponent

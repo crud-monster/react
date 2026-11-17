@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Form } from "react-bootstrap";
+import Button from "../../../components/ui/Button";
 import { useForm } from 'react-hook-form';
 import { useParams } from "react-router-dom";
 import Control from "../../../components/Editor/Control";
@@ -12,10 +12,10 @@ import QUERY from './graphql/query-user-role.gql';
 const UserRoleForm = ({ storedData, onSubmit, userRoleId, graphQlError }: any) => {
   const reactForm = useForm()
   const { handleSubmit } = reactForm
-  return (<Form onSubmit={handleSubmit(onSubmit)}>
+  return (<form className="mx-auto max-w-lg rounded-xl border border-slate-200 bg-white p-6" onSubmit={handleSubmit(onSubmit)}>
     <Control name={'name'} label={'Role name'} required={true} storedData={storedData} {...reactForm} />
     <Button type="submit">Save</Button>
-  </Form>)
+  </form>)
 }
 
 export const UserRoleEdit = (data: any) => {

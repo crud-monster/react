@@ -1,7 +1,6 @@
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client';
 import { DocumentNode } from 'graphql'
 import React, { useState } from 'react'
-import { Table as BTable } from 'react-bootstrap'
 import DeleteModal from '../DeleteModal/DeleteModal'
 import Loading from '../Loading/Loading'
 import Unauthorized from '../Unauthorized/Unauthorized'
@@ -20,7 +19,7 @@ export interface ITableQueries {
   DELETE_MUTATION: DocumentNode
 }
 
-export interface ITableList {
+export interface TableProps {
   userId?: string
   adminMode?: boolean
   filter: any
@@ -31,33 +30,22 @@ export interface ITableList {
   getEditLink?: IListRowParams['getEditLink']
 }
 
-export const Table: React.FC<ITableList> = ({ filter, name, adminMode = false, queries, fields, onEdit, getEditLink }) => {
+export type ITableList = TableProps
+
+function Table({ filter, name, adminMode = false, queries, fields, onEdit, getEditLink }: TableProps) {
   const [unauthorized, setUnauthorized] = useState(false)
   const [deleteObject, setDeleteObject] = useState(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deletingOnDeleteDialog, setDeletingOnDeleteDialog] = useState(false)
 
-  const [data, setData] = useState<any>([])
-  const [error, setError] = useState<any>()
+  const [error, setError] = useState<Error>()
 
-  const { refetch: userRefetch, loading } = useQuery(adminMode ? queries.ADMIN_LIST_QUERY : queries.USER_LIST_QUERY, {
-    onError: (e) => {
-      if (e.message === 'GraphQL error: Unauhorized') {
-        setUnauthorized(true)
-      } else {
-        setError(e)
-      }
-    },
-    onCompleted: (d) => {
-      const dataFields = Object.getOwnPropertyNames(d)
-      if (dataFields.length > 0 && d[dataFields[0]].length > 0) {
-        setData(d[dataFields[0]])
-      } else {
-        setData([])
-      }
-    },
-    variables: { filter },
-  })
+  const { refetch: userRefetch, loading, data: result, error: queryError } = useQuery<Record<string, any[]>>(
+    adminMode ? queries.ADMIN_LIST_QUERY : queries.USER_LIST_QUERY,
+    { variables: { filter } },
+  )
+  const data = result ? Object.values(result)[0] || [] : []
+
 
   const [deleteProjectMutation] = useMutation(queries.DELETE_MUTATION, {
     errorPolicy: 'none',
@@ -66,6 +54,8 @@ export const Table: React.FC<ITableList> = ({ filter, name, adminMode = false, q
       userRefetch()
     },
     onError: (e) => {
+      setDeletingOnDeleteDialog(false)
+      setError(e)
       if (e.message === 'GraphQL error: Unauhorized') {
         setUnauthorized(true)
       }
@@ -92,31 +82,31 @@ export const Table: React.FC<ITableList> = ({ filter, name, adminMode = false, q
     })
   }
 
-  if (unauthorized) {
+  if (unauthorized || (queryError && /unau?thorized|unauhorized/i.test(queryError.message))) {
     return <Unauthorized where={name} />
   }
   if (loading) return <Loading what={name} />
 
   return (
     <div>
-      {error && <div>{`Error! ${error.message}`}</div>}
+      {(error || queryError) && <div role="alert">{`Error! ${(error || queryError)?.message}`}</div>}
 
-      <BTable responsive>
+      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white"><table className="w-full border-collapse text-left text-sm [&_th]:bg-slate-100 [&_th]:px-4 [&_th]:py-3 [&_td]:border-t [&_td]:border-slate-200 [&_td]:px-4 [&_td]:py-3">
         <thead>
           <tr>
             <th>Id</th>
-            {fields?.map((f) => f !== 'id' && <th>{(f as any).name ? (f as any).name : f}</th>)}
+            {fields?.map((f) => f !== 'id' && <th key={typeof f === 'string' ? f : f.name}>{(f as any).name ? (f as any).name : f}</th>)}
             {adminMode && <th>User</th>}
             <th></th>
           </tr>
         </thead>
         <tbody>
-          {data.length &&
+          {data.length > 0 &&
             data.map((projectItem: any) => (
-              <ListRow name={name} item={projectItem} onDelete={onDelete} fields={fields} showDelete={adminMode} onEdit={onEdit} getEditLink={getEditLink} />
+              <ListRow key={projectItem.id} name={name} item={projectItem} onDelete={onDelete} fields={fields} showDelete={adminMode} onEdit={onEdit} getEditLink={getEditLink} />
             ))}
         </tbody>
-      </BTable>
+      </table></div>
 
       <DeleteModal
         show={showDeleteDialog}

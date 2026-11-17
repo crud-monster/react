@@ -1,88 +1,48 @@
-import { useMutation, useQuery } from "@apollo/client";
-import React, { useState } from "react";
-import { Dropdown, DropdownButton, Form } from "react-bootstrap";
+import { useMutation, useQuery } from '@apollo/client'
+import type { DocumentNode } from 'graphql'
+import React, { useState } from 'react'
+import Alert from '../ui/Alert'
 
-export const ConnectBase: React.FC<{ value: any, names?: any, gql: any, item: any }> = ({ value, names, gql, item }) => {
-  const element = value
-  const name = names.length > 1 && names[1]
-  const elementTitle = element.push && element.reduce && names.length > 1 ? (element as any[]).reduce((p, e) => p + `, ${e[name]}`, '').substr(2) : element
+type RelatedItem = { id: string; [key: string]: unknown }
+interface ConnectBaseProps {
+  value: unknown
+  names?: string[]
+  gql: { QUERY: DocumentNode; ADD: DocumentNode; REMOVE: DocumentNode }
+  item: { id: string }
+}
 
-  const [title, setTitle] = useState(elementTitle)
-  const [data, setData] = useState<any[]>([])
+function ConnectBase({ value, names = [], gql, item }: ConnectBaseProps) {
+  const field = names[1] || 'name'
+  const selected = Array.isArray(value) ? value.map(row => String(row[field])) : [String(value)]
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({})
+  const [error, setError] = useState<string>()
+  const [busy, setBusy] = useState(false)
+  const { data, loading, error: queryError } = useQuery<Record<string, RelatedItem[]>>(gql.QUERY)
+  const rows = data ? Object.values(data)[0] || [] : []
+  const [add] = useMutation(gql.ADD, { errorPolicy: 'none' })
+  const [remove] = useMutation(gql.REMOVE, { errorPolicy: 'none' })
 
-  useQuery(gql.QUERY, {
-    onCompleted: (iraw) => {
-
-      const dataFields = Object.getOwnPropertyNames(iraw)
-      if (dataFields.length > 0 && iraw[dataFields[0]].length > 0) {
-        const raw = iraw[dataFields[0]]
-
-        const final = raw.map((r: any) => ({
-          id: r.id,
-          checked: title.indexOf(r[name]) !== -1,
-          label: r[name]
-        }))
-
-        setData(final)
-      } else {
-        setData([])
-      }
-
-    },
-  });
-
-  const [addMutation] = useMutation(gql.ADD, { errorPolicy: "none" })
-
-  const [removeMutation] = useMutation(gql.REMOVE, { errorPolicy: "none" })
-
-  const onChecked = (value: any) => {
-    const updated = data.map((d: any) => {
-      if (d.label === value.label) {
-        d.checked = !d.checked
-      }
-      return { ...d }
-    })
-
-    const updateTitle = (updated as any[]).reduce((p, e) => {
-      if (e.checked) return `${p}, ${e.label}`
-      else return p
-    }, '').substr(1)
-
-    if (value.checked) {
-      addMutation({
-        variables: {
-          id1: value.id,
-          id2: item.id
-        }
-      });
-    } else {
-      removeMutation({
-        variables: {
-          id1: value.id,
-          id2: item.id
-        }
-      });
-    }
-
-
-    setData(updated)
-    setTitle(updateTitle)
+  async function toggle(row: RelatedItem, checked: boolean) {
+    setBusy(true)
+    setError(undefined)
+    setOverrides(previous => ({ ...previous, [row.id]: checked }))
+    try {
+      await (checked ? add : remove)({ variables: { id1: row.id, id2: item.id } })
+    } catch (error) {
+      setOverrides(previous => ({ ...previous, [row.id]: !checked }))
+      setError(error instanceof Error ? error.message : 'Could not update selection')
+    } finally { setBusy(false) }
   }
 
-  // if(element.push && element.reduce && names.length > 1) {
-  //   return (<>ahoj: {(element as any[]).reduce((p, e)=>p + e[names[1]], '')}</>)
-  // }
-
-  return (<DropdownButton id="dropdown-basic-button" title={title}>
-    {data && data.map((d: any) => (
-      <Dropdown.Item onClick={(e: any) => onChecked(d)} >
-        <Form.Check
-          type="checkbox"
-          label={d.label}
-          checked={d.checked} />
-      </Dropdown.Item>))
-    }
-  </DropdownButton>)
+  return <fieldset className="space-y-2" disabled={busy || loading}>
+    <legend className="sr-only">{names[0] || 'Related items'}</legend>
+    {loading && <span role="status">Loading choices…</span>}
+    {(error || queryError) && <Alert variant="danger">{error || queryError?.message}</Alert>}
+    {rows.map(row => <label key={row.id} className="flex items-center gap-2 text-sm">
+      <input className="size-4 accent-indigo-600" type="checkbox" checked={overrides[row.id] ?? selected.includes(String(row[field]))} onChange={event => void toggle(row, event.target.checked)} />
+      {String(row[field])}
+    </label>)}
+  </fieldset>
 }
 
 export default ConnectBase
